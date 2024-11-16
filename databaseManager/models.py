@@ -34,12 +34,12 @@ class Participant(models.Model):
     email = models.EmailField()
     age = models.IntegerField()
     year_of_study = models.CharField(
-        max_length=1,
+        max_length=8,
         choices= YEAR_OF_STUDY_CHOICES,
         default="1st year"
     )
     shirt_size = models.CharField(
-        max_length=1,
+        max_length=2,
         choices = SHIRT_SIZE_CHOICES,
         default = "M"
     )

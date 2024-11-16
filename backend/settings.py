@@ -78,7 +78,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'teambuilding',
-        'USER': 'datathon',
+        'USER': 'postgres',
         'PASSWORD': 'datathon2024',
         'HOST': 'localhost',
         'PORT': '5432',
