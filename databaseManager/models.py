@@ -80,3 +80,17 @@ class Participant(models.Model):
 
     def _str_(self):
         return self.name
+
+class ParticipantLock(models.Model):
+    id = models.TextField(
+        primary_key=True
+        foreignkey=True,
+    )
+    def _str_(self):
+        return self.name
+
+
+class ParticipantNoLock(models.Model):
+
+    def _str_(self):
+        return self.name
