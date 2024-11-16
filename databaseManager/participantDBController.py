@@ -26,7 +26,7 @@ def getParticipantJSON(name):
         return None
 
 @api_view(['GET'])
-def get_participants(name):
+def get_participants():
     participant = Participant.objects.all()
     data = [model_to_dict(participant) for participant in participant]
     return Response(data)
