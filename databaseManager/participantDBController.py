@@ -30,6 +30,7 @@ def get_participants(name):
     participant = Participant.objects.all()
     data = [model_to_dict(participant) for participant in participant]
     return Response(data)
+    
 
 def modifyParticipantEmail(name, email):
     try:
