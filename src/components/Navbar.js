@@ -28,7 +28,6 @@ const Navbar = () => {
 
       {/* Title in the Center */}
       <h2 style={{ color: 'black', fontSize: '24px', margin: 0, textAlign: 'center' }}>
-        Datathon FME Connect
       </h2>
 
       {/* Navigation Buttons on the Right */}
@@ -48,51 +47,7 @@ const Navbar = () => {
             Home
           </button>
         </Link>
-        <Link to="/teams" style={{ textDecoration: 'none' }}>
-          <button
-            style={{
-              backgroundColor: '#2596BE',
-              color: 'white',
-              border: 'none',
-              padding: '10px 15px',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
-          >
-            Teams
-          </button>
-        </Link>
-        <Link to="/map" style={{ textDecoration: 'none' }}>
-          <button
-            style={{
-              backgroundColor: '#2596BE',
-              color: 'white',
-              border: 'none',
-              padding: '10px 15px',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
-          >
-            Map
-          </button>
-        </Link>
-        <Link to="/saved-teams" style={{ textDecoration: 'none' }}>
-          <button
-            style={{
-              backgroundColor: '#2596BE',
-              color: 'white',
-              border: 'none',
-              padding: '10px 15px',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '16px',
-            }}
-          >
-            Saved Teams
-          </button>
-        </Link>
+
       </div>
     </nav>
   );

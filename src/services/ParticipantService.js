@@ -1,5 +1,4 @@
-const API_URL = 'http://127.0.0.1:8000/api/participants/'; // Update with your backend's URL
-
+const API_URL = 'http://127.0.0.1:8000/api/get_participants/'; 
 export const fetchParticipants = async () => {
   try {
     const response = await fetch(API_URL);

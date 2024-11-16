@@ -1,10 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Teams from './pages/Teams';
-import Profile from './pages/Profile';
+import SavedTeams from './pages/SavedTeams';
+import Profile from './pages/Participants';
 import Navbar from './components/Navbar';
-import Swiping from './pages/Swiping'; 
 import Map from './pages/Map';
 
 
@@ -17,9 +16,8 @@ function App() {
       {/* Main content changes based on the route */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/teams" element={<Teams />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/swiping" element={<Swiping />} /> 
+        <Route path="/saved-teams" element={<SavedTeams />} />
+        <Route path="/participants" element={<Profile />} />
         <Route path="/map" element={<Map />} />
 
       </Routes>
