@@ -3,7 +3,7 @@ import pandas as pd
 import json
 
 from django.forms.models import model_to_dict
-from databaseManager.models import Participant, ParticipantLock
+from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -110,8 +110,25 @@ def readParticipants(filePath):
         )
         participant.save()
 
-        if 1 == participant.preferred_team_size:
+        #If alone, add to lock OR If team size and team preferred size are equal (team is already closed).
+        if 1 == participant.preferred_team_size or participant.preferred_team_size - 1 == len(participant.friend_registration):
             participant = ParticipantLock(
                 id = participant
             )
             participant.save()
+        else:
+            participant = ParticipantNoLock(
+                id = participant,
+                properties = calculateproperties(participant)
+            )
+            participant.save()
+
+def calculateproperties(participant):
+    properties = {}
+    properties = [
+        participant.age,
+        participant.hackathons_done,
+        len(participant.interests),
+    ]
+    properties.
+    return properties
