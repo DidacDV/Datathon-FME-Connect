@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from backend.process_participants import readParticipants
+from databaseManager.process_participants import readParticipants
 from .models import *
 # Create your tests here.
 

@@ -30,7 +30,10 @@ class Participant(models.Model):
         ("Don't know","Don't know"),
         ("Don't care","Don't care"),
     ]
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        primary_key=True,
+        max_length=100
+    )
     email = models.EmailField()
     age = models.IntegerField()
     year_of_study = models.CharField(
