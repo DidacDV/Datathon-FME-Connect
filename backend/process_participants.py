@@ -36,6 +36,10 @@ data_frame = pd.DataFrame([{
     "Challenges of Interest": ", ".join(participant["interest_in_challenges"])
 } for participant in participants_data])
 
+
+
+
+
 # Mostrar el DataFrame
 print(data_frame)
 
