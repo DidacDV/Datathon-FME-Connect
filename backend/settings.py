@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'teambuilding',
+        'NAME': 'datathon',
         'USER': 'postgres',
         'PASSWORD': 'datathon2024',
         'HOST': '172.20.10.3',
