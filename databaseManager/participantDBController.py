@@ -1,9 +1,14 @@
+import ast
 import os
+import random
+
 import pandas as pd
 import json
 
 from django.forms.models import model_to_dict
-from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock
+from pandas import isnull
+
+from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -130,5 +135,39 @@ def calculateproperties(participant):
         participant.hackathons_done,
         len(participant.interests),
     ]
-    properties.
     return properties
+
+def addLockedParticipants():
+    added = []
+    for locked in ParticipantLock.objects.all():
+        if not added.__contains__(locked.id):
+            participant = locked.id
+            members = {str(participant.id)}
+            if participant.preferred_team_size != 1:
+                friends = ast.literal_eval(participant.friend_registration)
+                for friend in friends:
+                    members.add(friend)
+            addTeam(members)
+            added.append(members)
+            locked.delete()
+
+
+def readTeams():
+    names = getJSONFromPath('/home/rubenpv/PycharmProjects/datathon/data/team_names.json')
+    for name in names:
+        team = Teams2024(
+            name = name["name"],
+            members = []
+        )
+        team.save()
+
+
+def addTeam(members):
+    empty_teams = list(Teams2024.objects.filter(members = []))
+    if not empty_teams:
+        raise ValueError("No available teams without members.")
+    team = random.choice(empty_teams)
+    for name in members:
+        team.members.append(name)
+    team.save()
+

@@ -5,8 +5,11 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')  # Replace 'your_project_name' with your actual project name
 django.setup()
 
-from databaseManager.participantDBController import getParticipant, getParticipantJSON, modifyParticipantEmail
+from databaseManager.participantDBController import getParticipant, getParticipantJSON, modifyParticipantEmail, \
+    addLockedParticipants, readTeams
 from databaseManager.participantDBController import readParticipants
 
 
 readParticipants('/home/rubenpv/Escritorio/datathon_participants.json')
+readTeams()
+addLockedParticipants()

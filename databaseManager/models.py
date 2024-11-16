@@ -110,3 +110,17 @@ class ParticipantNoLock(models.Model):
 
     class Meta:
         db_table = 'databaseManager_participantnolock'
+
+class Teams2024(models.Model):
+    name = models.CharField(
+        primary_key=True,
+        unique = True,
+        max_length=100
+    )
+    members = ArrayField(
+        models.TextField(),
+        null= True,
+    )
+
+    def _str_(self):
+        return self.name
