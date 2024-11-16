@@ -3,8 +3,9 @@ import pandas as pd
 import json
 
 from django.forms.models import model_to_dict
-
 from databaseManager.models import Participant
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 def getParticipant(name):
     try:
@@ -23,6 +24,12 @@ def getParticipantJSON(name):
         # Handle the case where the participant doesn't exist
         print(f"No participant found with the name {name}.")
         return None
+
+@api_view(['GET'])
+def get_participants(name):
+    participant = Participant.objects.all()
+    data = [model_to_dict(participant) for participant in participant]
+    return Response(data)
 
 def modifyParticipantEmail(name, email):
     try:
@@ -77,6 +84,7 @@ def readParticipants(filePath):
     } for participant in participants_data])
     for _, row in data_frame.iterrows():
         participant = Participant(
+            id=row["ID"],
             name=row["Name"],
             email=row["Email"],
             age=row["Age"],

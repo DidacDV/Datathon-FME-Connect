@@ -30,8 +30,11 @@ class Participant(models.Model):
         ("Don't know","Don't know"),
         ("Don't care","Don't care"),
     ]
+    id = models.TextField(
+        primary_key=True
+    )
     name = models.CharField(
-        primary_key=True,
+        unique = True,
         max_length=100
     )
     email = models.EmailField()
