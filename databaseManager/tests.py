@@ -1,33 +1,12 @@
 from django.test import TestCase
+
+from backend.process_participants import readParticipants
 from .models import *
 # Create your tests here.
 
 class ParticipantModelTest(TestCase):
     def setUp(self):
-        Participant.objects.create(
-            name="OmarCornejo",
-            email="johndoe@example.com",
-            age=25,
-            year_of_study="Masters",
-            shirt_size="L",
-            university="Tech University",
-            dietary_restrictions="Vegetarian",
-            programming_skills="Python, JavaScript, SQL",
-            experience_level="Intermediate",
-            hackathons_done=3,
-            interests="AI, Data Science, Web Development",
-            preferred_role="Development",
-            objective="Build innovative solutions",
-            interest_in_challenges="Machine Learning and Web Development",
-            preferred_language="Python",
-            friend_registration="Friend's Name",
-            preferred_team_size=4,
-            availability="Full weekend",
-            introduction="Hi, I'm John!",
-            technical_project="Built a web scraper in Python",
-            future_excitement="Working on cutting-edge AI projects",
-            fun_fact="I can solve a Rubik's cube in under a minute",
-        )
+        readParticipants()
 
     def test_add_and_query_participant(self):
         """
@@ -35,7 +14,7 @@ class ParticipantModelTest(TestCase):
         and filtering based on a field.
         """
         # Retrieve the participant
-        participant = Participant.objects.get(name="John Doe")
+        participant = Participant.objects.get(name="Sara Vilar")
 
         # Print their name
         print(f"Participant Name: {participant.name}")
