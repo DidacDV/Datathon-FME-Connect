@@ -1,4 +1,13 @@
 import React, { useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Grid,
+} from '@mui/material';
 
 const Profile = () => {
   const [profile, setProfile] = useState({
@@ -17,69 +26,120 @@ const Profile = () => {
     setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
   };
 
+  const handleSave = (e) => {
+    e.preventDefault();
+    setIsEditing(false);
+  };
+
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Profile</h1>
-      {!isEditing ? (
-        <div>
-          <p><strong>Name:</strong> {profile.name}</p>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>Skills:</strong> {profile.skills.join(', ')}</p>
-          <p><strong>Goals:</strong> {profile.goals}</p>
-          <button onClick={handleEdit}>Edit Profile</button>
-        </div>
-      ) : (
-        <form onSubmit={(e) => { e.preventDefault(); handleEdit(); }}>
-          <div>
-            <label>
-              Name:
-              <input
-                type="text"
-                name="name"
-                value={profile.name}
-                onChange={handleChange}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              Email:
-              <input
-                type="email"
-                name="email"
-                value={profile.email}
-                onChange={handleChange}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              Skills:
-              <input
-                type="text"
-                name="skills"
-                value={profile.skills.join(', ')}
-                onChange={(e) => {
-                  const skillsArray = e.target.value.split(',').map((s) => s.trim());
-                  setProfile((prevProfile) => ({ ...prevProfile, skills: skillsArray }));
-                }}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              Goals:
-              <textarea
-                name="goals"
-                value={profile.goals}
-                onChange={handleChange}
-              />
-            </label>
-          </div>
-          <button type="submit">Save</button>
-        </form>
-      )}
-    </div>
+    <Grid container justifyContent="center" alignItems="center" style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+      <Card style={{ maxWidth: 600, width: '90%', borderRadius: 10, boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)' }}>
+        <CardContent>
+          <Typography variant="h4" gutterBottom style={{ textAlign: 'center', color: '#2596BE', fontWeight: 'bold' }}>
+            Profile
+          </Typography>
+
+          {!isEditing ? (
+            <Box>
+              {/* Display Profile Details */}
+              <Typography variant="h6" gutterBottom>
+                <strong>Name:</strong> {profile.name}
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <strong>Email:</strong> {profile.email}
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <strong>Skills:</strong> {profile.skills.join(', ')}
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <strong>Goals:</strong> {profile.goals}
+              </Typography>
+
+              {/* Edit Button */}
+              <Box mt={2} textAlign="center">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEdit}
+                  style={{ textTransform: 'none' }}
+                >
+                  Edit Profile
+                </Button>
+              </Box>
+            </Box>
+          ) : (
+            <form onSubmit={handleSave}>
+              {/* Edit Fields */}
+              <Box mb={2}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  name="name"
+                  value={profile.name}
+                  onChange={handleChange}
+                  variant="outlined"
+                />
+              </Box>
+              <Box mb={2}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  value={profile.email}
+                  onChange={handleChange}
+                  variant="outlined"
+                />
+              </Box>
+              <Box mb={2}>
+                <TextField
+                  fullWidth
+                  label="Skills (comma-separated)"
+                  name="skills"
+                  value={profile.skills.join(', ')}
+                  onChange={(e) => {
+                    const skillsArray = e.target.value.split(',').map((s) => s.trim());
+                    setProfile((prevProfile) => ({ ...prevProfile, skills: skillsArray }));
+                  }}
+                  variant="outlined"
+                />
+              </Box>
+              <Box mb={2}>
+                <TextField
+                  fullWidth
+                  label="Goals"
+                  name="goals"
+                  value={profile.goals}
+                  onChange={handleChange}
+                  multiline
+                  rows={3}
+                  variant="outlined"
+                />
+              </Box>
+
+              {/* Save Button */}
+              <Box textAlign="center">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="success"
+                  style={{ marginRight: 10, textTransform: 'none' }}
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={handleEdit}
+                  style={{ textTransform: 'none' }}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+    </Grid>
   );
 };
 

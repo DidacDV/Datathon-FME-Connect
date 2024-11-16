@@ -1,46 +1,65 @@
-import React, { useEffect } from 'react';
-import * as d3 from 'd3';
+import React from 'react';
+import { ForceGraph2D } from 'react-force-graph';
 
-const CompatibilityMap = ({ data }) => {
-  useEffect(() => {
-    const svg = d3.select('#map').append('svg').attr('width', 800).attr('height', 600);
+const participants = [
+  {
+    id: 1,
+    name: 'Alice',
+    skills: ['JavaScript', 'React', 'Node.js'],
+  },
+  {
+    id: 2,
+    name: 'Bob',
+    skills: ['Python', 'Machine Learning', 'AI'],
+  },
+  {
+    id: 3,
+    name: 'Charlie',
+    skills: ['Data Analysis', 'SQL', 'Tableau'],
+  },
+];
 
-    const nodes = data.participants;
-    const links = data.connections;
+// Graph data structure
+const graphData = {
+  nodes: participants.map((participant) => ({
+    id: participant.id,
+    name: participant.name,
+  })),
+  links: [
+    { source: 1, target: 2, score: 90 }, // Alice -> Bob
+    { source: 1, target: 3, score: 75 }, // Alice -> Charlie
+    { source: 2, target: 3, score: 80 }, // Bob -> Charlie
+  ],
+};
 
-    const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).distance(100).strength(1).id(d => d.id))
-      .force('charge', d3.forceManyBody().strength(-400))
-      .force('center', d3.forceCenter(400, 300));
+const CompatibilityMap = () => {
+  const handleNodeClick = (node) => {
+    // Redirect to user profile page
+    window.location.href = `/profile/${node.id}`;
+  };
 
-    const link = svg.append('g').selectAll('line')
-      .data(links)
-      .enter().append('line')
-      .style('stroke', '#aaa');
-
-    const node = svg.append('g').selectAll('circle')
-      .data(nodes)
-      .enter().append('circle')
-      .attr('r', 20)
-      .style('fill', '#69b3a2')
-      .call(d3.drag());
-
-    node.append('title').text(d => d.name);
-
-    simulation.nodes(nodes).on('tick', () => {
-      link
-        .attr('x1', d => d.source.x)
-        .attr('y1', d => d.source.y)
-        .attr('x2', d => d.target.x)
-        .attr('y2', d => d.target.y);
-
-      node
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y);
-    });
-  }, [data]);
-
-  return <div id="map"></div>;
+  return (
+    <div style={{ height: '80vh', width: '100%' }}>
+      <ForceGraph2D
+        graphData={graphData}
+        nodeLabel={(node) => `${node.name}`}
+        nodeAutoColorBy="id"
+        linkDirectionalArrowLength={5} // Adds arrows to links
+        linkDirectionalArrowRelPos={1} // Arrow position
+        linkLabel={(link) => `Compatibility: ${link.score}%`} // Link hover label
+        onNodeClick={handleNodeClick} // Handle node click
+        nodeCanvasObject={(node, ctx, globalScale) => {
+          const label = node.name;
+          const fontSize = 12 / globalScale;
+          ctx.font = `${fontSize}px Sans-Serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = node.color || 'black';
+          ctx.fillText(label, node.x, node.y);
+        }}
+      />
+    </div>
+  );
 };
 
 export default CompatibilityMap;
