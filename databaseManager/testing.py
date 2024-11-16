@@ -5,10 +5,8 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')  # Replace 'your_project_name' with your actual project name
 django.setup()
 
-from databaseManager.participantDBController import getParticipant
-from databaseManager.process_participants import readParticipants
+from databaseManager.participantDBController import getParticipant, getParticipantJSON, modifyParticipantEmail
+from databaseManager.participantDBController import readParticipants
 
 
-readParticipants()
-
-print(getParticipant("Sara Vilar"))
+readParticipants('/home/rubenpv/Escritorio/datathon_participants.json')
