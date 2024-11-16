@@ -8,7 +8,7 @@ Hi! We are:
 -Didac Dalmases Valcarel
 -Rubén Palà Vacas
 
-And we ----
+And we ---
 
 ## Overview 
 
