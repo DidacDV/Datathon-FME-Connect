@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
+
 
 # Create your models here.
 class Participant(models.Model):
@@ -79,18 +81,32 @@ class Participant(models.Model):
     fun_fact = models.TextField()
 
     def _str_(self):
-        return self.name
+        return self.id
 
 class ParticipantLock(models.Model):
-    id = models.TextField(
-        primary_key=True
-        foreignkey=True,
+    id = models.OneToOneField(
+        Participant,
+        primary_key=True,
+        on_delete=models.CASCADE
     )
     def _str_(self):
-        return self.name
-
+        return self.id
+    class Meta:
+        db_table = 'databaseManager_participantlock'
 
 class ParticipantNoLock(models.Model):
-
+    id = models.OneToOneField(
+        Participant,
+        primary_key=True,
+        on_delete=models.CASCADE
+    )
+    properties = ArrayField(
+        models.FloatField(),
+        blank=True,
+        default=list
+    )
     def _str_(self):
-        return self.name
+        return self.id
+
+    class Meta:
+        db_table = 'databaseManager_participantnolock'

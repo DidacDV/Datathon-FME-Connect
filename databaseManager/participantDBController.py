@@ -3,7 +3,7 @@ import pandas as pd
 import json
 
 from django.forms.models import model_to_dict
-from databaseManager.models import Participant
+from databaseManager.models import Participant, ParticipantLock
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -109,3 +109,9 @@ def readParticipants(filePath):
             fun_fact=row["Fun Fact"]
         )
         participant.save()
+
+        if 1 == participant.preferred_team_size:
+            participant = ParticipantLock(
+                id = participant
+            )
+            participant.save()
