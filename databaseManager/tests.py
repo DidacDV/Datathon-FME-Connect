@@ -5,7 +5,7 @@ from .models import *
 class ParticipantModelTest(TestCase):
     def setUp(self):
         Participant.objects.create(
-            name="Omar",
+            name="OmarCornejo",
             email="johndoe@example.com",
             age=25,
             year_of_study="Masters",
