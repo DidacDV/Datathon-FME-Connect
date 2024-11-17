@@ -1,0 +1,234 @@
+2024-11-17 02:12:08 - INFO - Validating database connection...
+2024-11-17 02:12:08 - INFO - Database connection successful
+2024-11-17 02:12:08 - INFO - 
+=== Initial Database Status ===
+2024-11-17 02:12:08 - INFO - Total teams available: 195
+2024-11-17 02:12:08 - INFO - Empty teams available: 163
+2024-11-17 02:12:08 - INFO - Total participants: 924
+2024-11-17 02:12:08 - INFO - Locked participants: 0
+2024-11-17 02:12:08 - INFO - NoLock participants: 892
+2024-11-17 02:12:08 - WARNING - Warning: Participant counts don't match! Please check data integrity
+2024-11-17 02:12:08 - INFO - 
+=== Starting Team Formation ===
+2024-11-17 02:12:08 - INFO - Team formation completed successfully
+2024-11-17 02:12:08 - INFO - 
+=== Final Status ===
+2024-11-17 02:12:08 - INFO - Teams remaining empty: 163
+2024-11-17 02:12:08 - INFO - 
+=== Team Compositions ===
+2024-11-17 02:12:08 - INFO - 
+Team: Team Antigua and Barbuda
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Aurora Rodriguez (Don't care, Advanced)
+2024-11-17 02:12:08 - INFO -   - Avery Winston (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Liberia
+2024-11-17 02:12:08 - INFO - Number of members: 4
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sophia Lenzoli (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofia Riviera (Development, Advanced)
+2024-11-17 02:12:08 - INFO -   - Aurèlia Sofia Elliot (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO -   - Aurélien Jackson Lopez (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Norway
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sònia Elisabet Morgan (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Alexandra Sàlvo (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team El Salvador
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Anaïs Jørgensen (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Louna Marcelle Rousseau (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Greece
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Alicia Riera García (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sophia Patel (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Ana Isabel Serraño. (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Kuwait
+2024-11-17 02:12:08 - INFO - Number of members: 1
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Nina Hartmann (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Bangladesh
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sofía English-Ponce (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO -   - Ana Sofia Marquez (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Burundi
+2024-11-17 02:12:08 - INFO - Number of members: 1
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Louna Marcelle Rousseau (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Turkmenistan
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Llezaray Fernández García (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofía Elena Russell. (Design, Beginner)
+2024-11-17 02:12:08 - INFO -   - Sofia Alejandra Kaiser (Development, Advanced)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Korea, South
+2024-11-17 02:12:08 - INFO - Number of members: 1
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sofía García Navarro (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Senegal
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Eva Pagès (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO -   - Ruby Windsor. (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Moldova
+2024-11-17 02:12:08 - INFO - Number of members: 1
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sophia Léa Langham (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Comoros
+2024-11-17 02:12:08 - INFO - Number of members: 4
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sophia Lenzoli (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofia Riviera (Development, Advanced)
+2024-11-17 02:12:08 - INFO -   - Aurèlia Sofia Elliot (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO -   - Aurélien Jackson Lopez (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Ireland
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Alejandra Porter-Silva (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofía Delgado (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Jamaica
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sophia Estrada (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO -   - River Paige Winchester (Design, Advanced)
+2024-11-17 02:12:08 - INFO -   - Lena Braunstein Martín. (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Tunisia
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Lucía Evelyn Thompson (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Maria Fontanills (Design, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Marta Escuela. (Analysis, Advanced)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Nauru
+2024-11-17 02:12:08 - INFO - Number of members: 1
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Pilar Cristina Fletcher (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Niger
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Alessia García (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Alejandra Elizabeth Flynn (Design, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Italy
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Llezaray Fernández García (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofía Elena Russell. (Design, Beginner)
+2024-11-17 02:12:08 - INFO -   - Sofia Alejandra Kaiser (Development, Advanced)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Saint Vincent and the Grenadines
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Lucía Evelyn Thompson (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Maria Fontanills (Design, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Marta Escuela. (Analysis, Advanced)
+2024-11-17 02:12:08 - INFO - 
+Team: Team South Sudan
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Céline Rivière (Design, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofia Elena Thompson (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Mali
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Ava Elizabeth Foster (Don't know, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Anaïs Pérez-Roca (Design, Advanced)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Poland
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Aurélia Gabrielle Santiago (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Evelyn Wellesley (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofia Patel (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Czech Republic
+2024-11-17 02:12:08 - INFO - Number of members: 4
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Sophia Lenzoli (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofia Riviera (Development, Advanced)
+2024-11-17 02:12:08 - INFO -   - Aurèlia Sofia Elliot (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO -   - Aurélien Jackson Lopez (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Dominica
+2024-11-17 02:12:08 - INFO - Number of members: 2
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Paloma García Sánchez (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Luz Elena Sawyer (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Equatorial Guinea
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Aurélia Gabrielle Santiago (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Evelyn Wellesley (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofia Patel (Development, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team United Kingdom
+2024-11-17 02:12:08 - INFO - Number of members: 1
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Aurélia Rodriguez-López (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Bahrain
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Llezaray Fernández García (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Sofía Elena Russell. (Design, Beginner)
+2024-11-17 02:12:08 - INFO -   - Sofia Alejandra Kaiser (Development, Advanced)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Spain
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Lucia Ferrer-Guillem (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Luna Sousa (Don't know, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Montserrat Casamitjana Vilarrasa (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Mexico
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Lucia Ferrer-Guillem (Development, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Luna Sousa (Don't know, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Montserrat Casamitjana Vilarrasa (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Libya
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Vilassilva Martina (Visualization, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Alicia Ryder (Design, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Eva Llovera Santos (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO - 
+Team: Team Nicaragua
+2024-11-17 02:12:08 - INFO - Number of members: 3
+2024-11-17 02:12:08 - INFO - Members:
+2024-11-17 02:12:08 - INFO -   - Arià Sutherland (Analysis, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Emily Rose Wiley (Design, Intermediate)
+2024-11-17 02:12:08 - INFO -   - Ana Sophia Rodriguez (Don't know, Beginner)
+2024-11-17 02:12:08 - INFO - 
+=== Validation Checks ===
+2024-11-17 02:12:08 - WARNING - Warning: 892 participants remain unassigned
+2024-11-17 02:12:09 - ERROR - 
+Critical error occurred: 'ParticipantNoLock' object has no attribute 'participant'
+2024-11-17 02:12:09 - ERROR - Traceback (most recent call last):
+  File "/home/omar/datathon/backend/algoritmo dos/main_test.py", line 150, in main
+    log_message(f"  - Unassigned: {nolock.participant.name}")
+                                   ^^^^^^^^^^^^^^^^^^
+AttributeError: 'ParticipantNoLock' object has no attribute 'participant'
+
