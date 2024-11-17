@@ -79,6 +79,11 @@ class Participant(models.Model):
     technical_project = models.TextField()
     future_excitement = models.TextField()
     fun_fact = models.TextField()
+    compatibility_field = models.IntegerField(
+        null = True,
+        blank = True,
+    )
+
 
     def _str_(self):
         return self.id
@@ -116,6 +121,5 @@ class Teams2024(models.Model):
         models.TextField(),
         null= True,
     )
-
     def _str_(self):
         return self.name

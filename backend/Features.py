@@ -10,3 +10,4 @@ class Features:
     programming_skills: Dict[str, int]
     preferred_team_size: int
     preferred_languages: List[str]
+    preferred_role: str

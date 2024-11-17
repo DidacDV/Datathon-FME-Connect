@@ -5,10 +5,22 @@ import random
 import pandas as pd
 import json
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
-from pandas import isnull
+from django.forms.models import model_to_dict
+from pyinotify import compatibility_mode
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
+
+
+from databaseManager.models import Participant
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from django.shortcuts import get_object_or_404
+from pandas import isnull
 from backend.Features import Features
+from backend.ParticipantSerializer import ParticipantSerializer
 from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -31,7 +43,7 @@ def getParticipantJSON(name):
         return None
 
 @api_view(['GET'])
-def get_participants():
+def get_participants(request):
     participant = Participant.objects.all()
     data = [model_to_dict(participant) for participant in participant]
     return Response(data)
@@ -46,6 +58,105 @@ def get_participant_by_id(request, id):
         return Response({'error': 'Participant not found'}, status=404)
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def get_Teams2024(request):
+    teams2024 = Teams2024.objects.all()
+    data = []
+
+    for team in teams2024:
+        team_dict = model_to_dict(team)
+
+        # Initialize an empty list for member details
+        member_details = []
+
+        # Check if members exists and is not None
+        if team_dict.get('members'):
+            for member_id in team_dict['members']:
+                try:
+                    participant = Participant.objects.get(id=member_id)
+                    member_details.append({
+                        'id': str(participant.id),
+                        'name': participant.name
+                    })
+                except ObjectDoesNotExist:
+                    member_details.append({
+                        'id': member_id,
+                        'name': None
+                    })
+
+        # Replace the array of UUIDs with the array of member details
+        team_dict['members'] = member_details
+        data.append(team_dict)
+
+    return Response(data)
+
+@api_view(['PATCH'])
+def edit_participant(request, id):
+    try:
+        participant = Participant.objects.get(id=id)
+    except Participant.DoesNotExist:
+        return Response({'error': 'Participant not found'}, status=404)
+
+    serializer = ParticipantSerializer(participant, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+def edit_team(request, name):
+    try:
+        team = Teams2024.objects.get(name=name)
+    except Teams2024.DoesNotExist:
+        return Response({'error': 'Team not found'}, status=404)
+    serializer = TeamSerializer(team, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def generate_teams_kmin(request):
+    from backend.algorithmImplementation import TeamFormationSystem
+    try:
+        # Initialize the team formation system with the necessary parameters
+        team_system = TeamFormationSystem(getAlgorithmDict(), 4)
+
+        # Generate the teams
+        formed_teams = team_system.getAllTeams()
+
+        # Save the generated teams (this should ideally be a method that persists the teams)
+        team_system.save_teams(formed_teams)
+
+        # Respond with the success message and some information (e.g., number of teams formed)
+        return Response({
+
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Log the error and return a specific message
+        print(e)
+        return Response({
+            'error': f"Failed to generate teams: {str(e)}"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def generate_teams_machine(request):
+    from backend.algorithmImplementation import TeamFormationSystem
+    try:
+
+        # Respond with the success message and some information (e.g., number of teams formed)
+        return Response({
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Log the error and return a specific message
+        print(e)
+        return Response({
+            'error': f"Failed to generate teams: {str(e)}"
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 def modifyParticipantEmail(name, email):
     try:
@@ -122,7 +233,8 @@ def readParticipants(filePath):
             introduction=row["Introduction"],
             technical_project=row["Technical Project"],
             future_excitement=row["Future Excitement"],
-            fun_fact=row["Fun Fact"]
+            fun_fact=row["Fun Fact"],
+            compatibility_field=0
         )
         participant.save()
 
@@ -137,15 +249,6 @@ def readParticipants(filePath):
                 id = participant,
             )
             participant.save()
-
-def calculateproperties(participant):
-    properties = {}
-    properties = [
-        participant.age,
-        participant.hackathons_done,
-        len(participant.interests),
-    ]
-    return properties
 
 def addLockedParticipants():
     added = []
@@ -190,17 +293,17 @@ def getAlgorithmDict():
 
         #Create class feature.
         f = Features(
-        participant.age,
-        participant.experience_level,
-        participant.hackathons_done,
-        parse_programming_skills(participant.programming_skills),
-        participant.preferred_team_size,
-        participant.preferred_language
+            participant.age,
+            participant.experience_level,
+            participant.hackathons_done,
+            parse_programming_skills(participant.programming_skills),
+            participant.preferred_team_size,
+            list(participant.preferred_language.split(", ")),
+            participant.preferred_role
         )
 
         dictionary[participant.id] = f
     return dictionary
-
 
 def parse_programming_skills(skills_str):
     # Split the string by commas to get individual skill-level pairs
