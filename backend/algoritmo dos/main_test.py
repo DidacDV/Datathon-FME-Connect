@@ -1,26 +1,18 @@
 import os
 import sys
 import django
-# Configuración de Django
-sys.path.append('/home/omar/datathon')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
-from sklearn.utils import class_weight
+from sklearn.model_selection import GridSearchCV
+from databaseManager.models import ParticipantNoLock, Teams2024
+
+from itertools import combinations
 import random
-import numpy as np
-from joblib import Parallel, delayed
-
-
-
-from databaseManager.models import Participant
-
 
 def parse_programming_skills(skills_str: str) -> dict:
-    """Convierte habilidades de programación de texto a un diccionario."""
     try:
         skills_dict = {}
         skills_list = skills_str.split(", ")
@@ -28,22 +20,16 @@ def parse_programming_skills(skills_str: str) -> dict:
             skill_name, level = skill.split(": ")
             skills_dict[skill_name] = int(level)
         return skills_dict
-    except Exception as e:
-        print(f"Error al parsear habilidades de programación: {e}")
+    except Exception:
         return {}
 
-
 def get_friends_list(friend_registration_str: str) -> set:
-    """Convierte la lista de amigos de texto a un conjunto."""
     try:
-        return set(eval(friend_registration_str))  # Usar eval con precaución
-    except Exception as e:
-        print(f"Error al parsear lista de amigos: {e}")
+        return set(eval(friend_registration_str))
+    except Exception:
         return set()
 
-
 def transform_participant_data(participant):
-    """Transforma los datos de un participante en un formato procesable."""
     return {
         "id": participant.id,
         "age": participant.age,
@@ -64,15 +50,14 @@ def transform_participant_data(participant):
         "university": participant.university,
     }
 
-
 def generate_features(participants_data, max_pairs=10000):
-    """Genera características y etiquetas para una muestra de pares de participantes."""
-    from itertools import combinations
-
+    all_pairs = list(combinations(participants_data, 2))
+    total_pairs = len(all_pairs)
+    if max_pairs > total_pairs:
+        max_pairs = total_pairs
+    sampled_pairs = random.sample(all_pairs, max_pairs)
     features_list = []
     pairs = []
-    sampled_pairs = random.sample(list(combinations(participants_data, 2)), max_pairs)
-
     for p1, p2 in sampled_pairs:
         base_features = {
             "age_difference": abs(p1["age"] - p2["age"]),
@@ -92,7 +77,6 @@ def generate_features(participants_data, max_pairs=10000):
             "university_match": int(p1["university"] == p2["university"]),
             "shirt_size_match": int(p1["shirt_size"] == p2["shirt_size"]),
         }
-
         derived_features = {
             "skills_experience_ratio": base_features["shared_programming_skills"] / (base_features["experience_match"] + 1),
             "compatibility_score": (base_features["shared_programming_skills"] * 0.5 +
@@ -101,61 +85,72 @@ def generate_features(participants_data, max_pairs=10000):
             "programming_skill_density": base_features["shared_programming_skills"] / (1 + len(p1["programming_skills"])),
             "normalized_hackathon_difference": base_features["hackathon_difference"] / (1 + p1["hackathons_done"] + p2["hackathons_done"]),
         }
-
         features = {**base_features, **derived_features}
         features_list.append(features)
         pairs.append((p1["id"], p2["id"]))
-
     return features_list, pairs
 
-
 def optimize_logistic_regression(features, labels):
-    """Optimiza los hiperparámetros del modelo de Regresión Logística."""
     X = [list(f.values()) for f in features]
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
-
-    param_grid = {
-        "C": [0.01, 0.1, 1],  # Reducción de combinaciones
-        "solver": ["liblinear", "lbfgs"]
-    }
-
+    param_grid = {"C": [0.01, 0.1, 1], "solver": ["liblinear", "lbfgs"]}
     model = LogisticRegression(max_iter=1000, random_state=42, class_weight="balanced")
     grid_search = GridSearchCV(model, param_grid, cv=3, scoring="roc_auc", n_jobs=-1)
     grid_search.fit(X_scaled, labels)
-
-    print(f"Mejores parámetros: {grid_search.best_params_}")
-    print(f"Mejor precisión en validación cruzada: {grid_search.best_score_:.4f}")
-
     best_model = grid_search.best_estimator_
     return best_model, scaler
 
+from django.db import transaction
 
-if __name__ == "__main__":
-    # Carga y preprocesamiento de datos
-    participants = Participant.objects.all()
-    participants_data = [transform_participant_data(p) for p in participants]
+from django.db.models import Q
 
-    # Generar una muestra de características y etiquetas
-    features_list, pairs = generate_features(participants_data, max_pairs=30000)
+def create_teams(max_team_size=4):
+    participants = ParticipantNoLock.objects.select_related('id').all()
+    participants_data = [transform_participant_data(p.id) for p in participants]
+    features_list, pairs = generate_features(participants_data, max_pairs=10000)
     labels = [
         1 if features["compatibility_score"] > 0.6 else 0
         for features in features_list
     ]
-
-    # Optimizar el modelo
     model, scaler = optimize_logistic_regression(features_list, labels)
+    unassigned_participants = participants_data[:]
+    teams = []
 
-    # Evaluación
-    X = [list(f.values()) for f in features_list]
-    X_scaled = scaler.transform(X)
-    predictions = model.predict(X_scaled)
+    # Obtener equipos sin miembros existentes
+    available_teams = list(Teams2024.objects.filter(Q(members__isnull=True) | Q(members=[])).values_list('name', flat=True))
+    team_counter = 1
 
-    print("Reporte de clasificación:")
-    print(classification_report(labels, predictions))
+    while unassigned_participants:
+        p1 = unassigned_participants.pop(0)
+        potential_teammates = []
+        for p2 in unassigned_participants:
+            features = generate_features([p1, p2])[0][0]
+            X = scaler.transform([list(features.values())])
+            prediction = model.predict(X)[0]
+            if prediction == 1:
+                potential_teammates.append(p2)
+        team = [p1] + potential_teammates[: max_team_size - 1]
+        for member in team[1:]:
+            unassigned_participants.remove(member)
 
-    print("Matriz de confusión:")
-    print(confusion_matrix(labels, predictions))
+        # Usar un nombre de equipo existente si está disponible
+        if available_teams:
+            team_name = available_teams.pop(0)
+        else:
+            team_name = f"Team_{team_counter}"
+            team_counter += 1
 
-    roc_auc = roc_auc_score(labels, model.predict_proba(X_scaled)[:, 1])
-    print(f"ROC-AUC: {roc_auc:.4f}")
+        # Guardar el equipo en la base de datos
+        team_members = [member["id"] for member in team]
+        Teams2024.objects.update_or_create(
+            name=team_name,
+            defaults={"members": team_members},
+        )
+        teams.append((team_name, team_members))
+    return teams
+
+if __name__ == "__main__":
+    with transaction.atomic():
+        teams_created = create_teams(max_team_size=4)
+
