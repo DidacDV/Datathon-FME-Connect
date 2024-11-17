@@ -11,7 +11,7 @@ from django.forms.models import model_to_dict
 from pyinotify import compatibility_mode
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
+from django.db import transaction
 
 
 from databaseManager.models import Participant
@@ -144,8 +144,11 @@ def generate_teams_kmin(request):
 
 @api_view(['POST'])
 def generate_teams_machine(request):
-    from backend.algorithmImplementation import TeamFormationSystem
+    from backend.algoritmo_dos import create_teams 
+    
     try:
+        with transaction.atomic():
+            teams_created = create_teams(max_team_size=4)
 
         # Respond with the success message and some information (e.g., number of teams formed)
         return Response({
