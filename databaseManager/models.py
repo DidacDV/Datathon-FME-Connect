@@ -123,3 +123,11 @@ class Teams2024(models.Model):
     )
     def _str_(self):
         return self.name
+
+class Teams(models.Model):
+    name = models.CharField(
+        primary_key=True,
+    )
+
+    def _str_(self):
+        return self.name

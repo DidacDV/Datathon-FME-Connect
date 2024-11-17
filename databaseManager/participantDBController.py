@@ -5,23 +5,14 @@ import random
 import pandas as pd
 import json
 
+from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management import call_command
 from django.forms.models import model_to_dict
-from django.forms.models import model_to_dict
-from pyinotify import compatibility_mode
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-
-
-
-from databaseManager.models import Participant
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from django.shortcuts import get_object_or_404
-from pandas import isnull
 from backend.Features import Features
 from backend.ParticipantSerializer import ParticipantSerializer
-from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
+from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024, Teams
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
@@ -60,11 +51,20 @@ def get_participant_by_id(request, id):
         return Response({'error': str(e)}, status=500)
 
 @api_view(['GET'])
-def get_Teams2024(request):
-    teams2024 = Teams2024.objects.all()
-    data = []
+def get_teams(request):
+    teams = Teams.objects.all()
+    data = [teams]
+    return Response(data)
 
-    for team in teams2024:
+@api_view(['GET'])
+def get_teams_by_year(request, year):
+    table_name = f"teams_{year}"
+    model_class = apps.get_model("databaseManager", table_name)
+    if model_class is None:
+        raise ValueError(f"Model '{table_name}' not found.")
+
+    data = []
+    for team in model_class.objects.all():
         team_dict = model_to_dict(team)
 
         # Initialize an empty list for member details
@@ -103,18 +103,6 @@ def edit_participant(request, id):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['PATCH'])
-def edit_team(request, name):
-    try:
-        team = Teams2024.objects.get(name=name)
-    except Teams2024.DoesNotExist:
-        return Response({'error': 'Team not found'}, status=404)
-    serializer = TeamSerializer(team, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -250,7 +238,8 @@ def readParticipants(filePath):
             )
             participant.save()
 
-def addLockedParticipants():
+def addLockedParticipants(year):
+    table_name = f"teams_{year}"
     added = []
     for locked in ParticipantLock.objects.all():
         if not added.__contains__(locked.id):
@@ -260,25 +249,39 @@ def addLockedParticipants():
                 friends = ast.literal_eval(participant.friend_registration)
                 for friend in friends:
                     members.add(friend)
-            addTeam(members)
+            addTeam(year,members)
             added.append(members)
             locked.delete()
 
 
-def readTeams():
+def readTeams(year):
     data = getJSONFromPath('/home/rubenpv/PycharmProjects/datathon/data/team_names.json')
+    table_name = f"teams_{year}"
+
+    if Teams.objects.filter(name=table_name).exists():
+        model_class = apps.get_model("databaseManager", table_name)
+        if model_class is None:
+            raise ValueError(f"Model '{table_name}' not found.'")
+
     if 'team_names' in data:
         team_names = data['team_names']
         for name in team_names:
-            team = Teams2024(
-                name = name,
-                members = []
+            newteam = model_class(
+                name= name,
+                members= []
             )
-            team.save()
+            newteam.save()
 
+def addTeam(year, members):
+    global model_class
+    table_name = f"teams_{year}"
 
-def addTeam(members):
-    empty_teams = list(Teams2024.objects.filter(members = []))
+    if Teams.objects.filter(name=table_name).exists():
+        model_class = apps.get_model("databaseManager", table_name)
+        if model_class is None:
+            raise ValueError(f"Model '{table_name}' not found.'")
+
+    empty_teams = list(model_class.objects.filter(members = []))
     if not empty_teams:
         raise ValueError("No available teams without members.")
     team = random.choice(empty_teams)
@@ -323,3 +326,49 @@ def parse_programming_skills(skills_str):
         skill_name, level = skill.split(": ")
         skills_dict[skill_name] = int(level)
     return skills_dict
+
+
+from django.db import models, connection
+
+
+def create_team_year_table(year):
+    table_name = f"teams_{year}"
+    teamYear = Teams(
+        name=table_name,
+    )
+    teamYear.save()
+
+    attrs = {
+        "__module__": "databaseManager.models",
+        "name": models.CharField(primary_key=True, unique=True, max_length=100),
+        "members": models.JSONField(null=True),  # Use JSONField for member storage
+        "__str__": lambda self: self.name,
+    }
+
+    model = type(table_name, (models.Model,), attrs)
+
+
+    # Register the model in the app's registry
+    apps.register_model("databaseManager", model)
+
+    # Create migrations for the new model
+    call_command("makemigrations", "databaseManager")
+
+    # Apply migrations to create the table
+    call_command("migrate", "databaseManager")
+
+    return model
+
+
+def insert_team_into_yearly_table(year, team_name, members):
+    table_name = f"teams_{year}"
+
+    if(Teams.objects.exists(table_name)):
+        model_class = apps.get_model("databaseManager.models", table_name)
+        if model_class is None:
+            raise ValueError(f"Model '{table_name}' not found.'")
+        newteam = model_class(
+            name = team_name,
+            members = members,
+        )
+        newteam.save()
