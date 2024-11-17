@@ -116,6 +116,7 @@ class Teams2024(models.Model):
         models.TextField(),
         null= True,
     )
+    score = models.FloatField()
 
     def _str_(self):
         return self.name

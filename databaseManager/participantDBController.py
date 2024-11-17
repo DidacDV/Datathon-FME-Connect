@@ -235,7 +235,8 @@ def readTeams():
         for name in team_names:
             team = Teams2024(
                 name = name,
-                members = []
+                members = [],
+                score = 10.0
             )
             team.save()
 
