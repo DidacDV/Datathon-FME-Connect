@@ -10,19 +10,21 @@ from backend.algorithmImplementation import LanguageParser, algorithmLogic
 from backend.algorithmImplementation.algorithmLogic import *
 import dataclasses
 
-from databaseManager.participantDBController import addTeam
 
 
 class TeamFormationSystem:
     WEIGHTS = {
         "age": 1,
-        "experience_level": 5,
-        "hackathons_done": 2,
+        "experience_level": 4,
+        "hackathons_done": 1,
         "programming_skills": 3,
         "preferred_team_size": 2,
         "preferred_languages": 5,
-        "preferred role" : 4
-    } #values from 1 to 5, the bigger the value, the more important it becomes
+        "preferred role" : 4,
+        "availability" : 5,
+        "university" : 2,
+        "friends" : 7
+    } #values from 1 to 7, the bigger the value, the more important it becomes
     def __init__(self, participants: Dict[uuid.UUID, Features], max_team_size: int = 4):
         self.participants = participants
         self.teams = [[] for _ in range(math.ceil(len(participants) / max_team_size))]
@@ -37,15 +39,51 @@ class TeamFormationSystem:
                 return False
         return True
 
+    def toNum(self,uid): #returns 0, if avalaible both days, returns 1 if only Sunday, -1 saturday
+        ret = 0
+        if self.participants[uid].disponiblity_days["Saturday"]:
+            ret -=1
+        if self.participants[uid].disponiblity_days["Sunday"]:
+            ret +=1
+        return ret
+
+    def countFriendsInTeam(self,team,uidToTry):
+        friend_count = 0
+        user_friends = self.participants[uidToTry].friend_registration
+        for uid in team:
+            if uid in user_friends:
+                friend_count += 1
+        return friend_count
+
     def searchBestTeam(self, teams, expLevel: str, uidToTry):
-        minExp = float('inf')
+        bestTeamScore = float('-inf')
         bestTeamChoice = None
-        for idt, team in enumerate(teams):
+        disponiblityToTry = self.toNum(uidToTry)
+
+        for team_index, team in enumerate(teams):
             if len(team) < self.max_team_size:
-                expOfTeam = sum(1 for member_id in team if self.participants[member_id].experience_level == expLevel)
-                if expOfTeam < minExp and self.checkRoleDisp(self.participants[uidToTry],team):
-                    minExp = expOfTeam
-                    bestTeamChoice = idt
+                exp_counter = defaultdict(int)
+                role_counter = defaultdict(int)
+                score = 0
+                friends_in_team = self.countFriendsInTeam(team,uidToTry)
+                score += self.WEIGHTS["friends"] * friends_in_team
+                for uid in team:
+                    exp_counter[self.participants[uid].experience_level] += 1 #add one on each
+                    role_counter[self.participants[uid].preferred_role] += 1
+                    if self.checkRoleDisp(self.participants[uidToTry].preferred_role, team):
+                        for uid in team:
+                            score += self.WEIGHTS["age"] * int(self.participants[uidToTry].age == self.participants[uid].age)
+                            score += self.WEIGHTS["programming_skills"] * int(algorithmLogic.averageSkill(self.participants[uidToTry]) == algorithmLogic.averageSkill(self.participants[uid]))
+                            score += self.WEIGHTS["preferred_team_size"] * int(self.participants[uidToTry].preferred_team_size == self.participants[uid].preferred_team_size)
+                            score += self.WEIGHTS["preferred_languages"] * int(algorithmLogic.getLanguageValue(self.participants[uidToTry].preferred_languages[0]) == algorithmLogic.getLanguageValue(self.participants[uid].preferred_languages[0]))
+                            score += self.WEIGHTS["experience_level"] * int(self.participants[uidToTry].experience_level != expLevel)
+                            score += self.WEIGHTS["preferred role"] * int(self.participants[uidToTry].preferred_role != self.participants[uid].preferred_role)
+                            score += self.WEIGHTS["availability"] * int(disponiblityToTry == self.toNum(uid)) #same thing, just that one uses the func before
+                            score += self.WEIGHTS["university"] * int(self.participants[uidToTry].university != self.participants[uid].university)
+                    if score > bestTeamScore:
+                        bestTeamScore = score
+                        bestTeamChoice = team_index
+
         return bestTeamChoice
 
     def getClusters(featureVectors, nTeams):
@@ -109,7 +147,12 @@ class TeamFormationSystem:
                 if bestTeamChoice is not None:  #same as normal
                     teams[bestTeamChoice].append(uid)
                     remaining.remove(uid)
-
+                else:                   #add somewhere if no more options
+                    for team in teams:
+                        if len(team) < self.max_team_size:
+                            team.append(uid)
+                            remaining.remove(uid)
+                            break
         return teams
 
     def display_teams(self, teams):
@@ -120,7 +163,3 @@ class TeamFormationSystem:
                 print(f"- {participant.age} ({participant.hackathons_done}) with experience LvL {participant.experience_level} and {participant.programming_skills}")
             print()
 
-    def save_teams(self,teams):
-        for i, team in enumerate(teams):
-            for participants in teams:
-                addTeam(participants)
