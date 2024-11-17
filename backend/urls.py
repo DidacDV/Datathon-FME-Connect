@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from databaseManager.participantDBController import get_participant, get_participants, edit_participant, get_Teams2024, \
-    edit_team
+    edit_team, generate_teams_kmin, generate_teams_machine
 from databaseManager.participantDBController import get_participant_by_id
 
 urlpatterns = [
@@ -12,4 +12,7 @@ urlpatterns = [
     path('api/teams/', get_Teams2024, name='get_Teams2024'),
     path('api/participants/<str:participant_id>/', edit_participant, name='edit_participant'),
     path('teams/<str:name>/', edit_team , name='edit_team'),
+    path('api/teams/generate_teams_kmin/',generate_teams_kmin, name='generate_teams_kmin'),
+    path('api/teams/generate_teams_machine/', generate_teams_machine, name='generate_teams_machine'),
+
 ]

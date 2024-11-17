@@ -23,5 +23,4 @@ if __name__ == "__main__":
 
     team_system = TeamFormationSystem(participants, 4)
     formed_teams = team_system.getAllTeams()
-    team_system.display_teams(formed_teams)
     team_system.save_teams(formed_teams)

@@ -9,10 +9,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.forms.models import model_to_dict
 from pyinotify import compatibility_mode
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+
 
 from databaseManager.models import Participant
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
 from pandas import isnull
 from backend.Features import Features
@@ -113,7 +116,46 @@ def edit_team(request, name):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view([''])
+@api_view(['POST'])
+def generate_teams_kmin(request):
+    from backend.algorithmImplementation import TeamFormationSystem
+    try:
+        # Initialize the team formation system with the necessary parameters
+        team_system = TeamFormationSystem(getAlgorithmDict(), 4)
+
+        # Generate the teams
+        formed_teams = team_system.getAllTeams()
+
+        # Save the generated teams (this should ideally be a method that persists the teams)
+        team_system.save_teams(formed_teams)
+
+        # Respond with the success message and some information (e.g., number of teams formed)
+        return Response({
+
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Log the error and return a specific message
+        print(e)
+        return Response({
+            'error': f"Failed to generate teams: {str(e)}"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def generate_teams_machine(request):
+    from backend.algorithmImplementation import TeamFormationSystem
+    try:
+
+        # Respond with the success message and some information (e.g., number of teams formed)
+        return Response({
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        # Log the error and return a specific message
+        print(e)
+        return Response({
+            'error': f"Failed to generate teams: {str(e)}"
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 def modifyParticipantEmail(name, email):
     try:
