@@ -84,7 +84,7 @@ DATABASES = {
         'NAME': 'datathon',
         'USER': 'postgres',
         'PASSWORD': 'datathon2024',
-        'HOST': 'localhost',
+        'HOST': '172.20.10.3',
         'PORT': '5432',
     }
 }

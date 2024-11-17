@@ -8,6 +8,7 @@ import json
 from django.forms.models import model_to_dict
 from pandas import isnull
 
+from backend.Features import Features
 from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -134,7 +135,6 @@ def readParticipants(filePath):
         else:
             participant = ParticipantNoLock(
                 id = participant,
-                properties = calculateproperties(participant)
             )
             participant.save()
 
@@ -189,13 +189,31 @@ def getAlgorithmDict():
         participant = alone.id
 
         #Create class feature.
-        Features f
-        f.age = participant.age
-        f.experience_level = participant.experience_level
-        f.hackathons_done = participant.hackathons_done
-        f.programming_skills = participant.programming_skills
-        f.preferred_team_size = participant.preferred_team_size
-        f.preferred_languages = participant.preferred_languages
+        f = Features(
+        participant.age,
+        participant.experience_level,
+        participant.hackathons_done,
+        parse_programming_skills(participant.programming_skills),
+        participant.preferred_team_size,
+        participant.preferred_language
+        )
 
         dictionary[participant.id] = f
     return dictionary
+
+
+def parse_programming_skills(skills_str):
+    # Split the string by commas to get individual skill-level pairs
+    skills_list = skills_str.split(", ")
+
+    # Create an empty dictionary to store the parsed skills
+    skills_dict = {}
+
+    for skill in skills_list:
+        # Split each skill-level pair by the colon (:) to separate skill and level
+        skill_name, level = skill.split(": ")
+
+        # Convert the level to an integer and add to the dictionary
+        skills_dict[skill_name] = int(level)
+
+    return skills_dict
