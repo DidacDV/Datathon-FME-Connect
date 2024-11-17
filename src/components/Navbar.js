@@ -33,7 +33,7 @@ const Navbar = () => {
         <Link to="/" style={{ textDecoration: 'none' }}>
           <button
             style={{
-              backgroundColor: '#27272a',
+              backgroundColor: '#2596BE',
               color: 'white',
               border: 'none',
               padding: '12px 20px', // Adjusted padding for larger buttons

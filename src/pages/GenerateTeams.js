@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const API_KMIN_URL = 'http://127.0.0.1:8000/api/teams/generate_teams_kmin/';
-const API_MACHINE_URL = 'http://127.0.0.1:8000/api/teams/generate_teams_machine/';
+const API_KMIN_URL = 'http://172.20.10.3:3000/api/teams/generate_teams_kmin/';
+const API_MACHINE_URL = 'http://172.20.10.3:3000/api/teams/generate_teams_machine/';
 // You can later implement the API call for generating teams inside this function
 const generateTeamsHandler = async () => {
   try {

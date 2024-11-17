@@ -6,7 +6,7 @@ const SavedTeams = () => {
   useEffect(() => {
     const fetchSavedTeams = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/get-saved-teams/');
+        const response = await fetch('http://172.20.10.3:3000/api/get-saved-teams/');
         const data = await response.json();
         if (data.success) {
           setTeams(data.teams);

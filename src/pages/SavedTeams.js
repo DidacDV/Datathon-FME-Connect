@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-
 import { Typography, Grid, Box } from '@mui/material';
 import TeamCard from '../components/TeamCard';
-import { fetchTeams } from "../services/TeamService";
-
+import { fetchTeams } from '../services/TeamService';
 
 const SavedTeamGroups = () => {
-  const [teamGroups, setTeamGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
-
+  const [teams, setTeams] = useState([]); // Fixed: Changed `teamGroups` to `teams`
+  const [selectedGroup, setSelectedGroup] = useState(null); // Kept as-is for future group implementation
 
   useEffect(() => {
     const loadTeams = async () => {
-      const data = await fetchTeams();
-      setTeams(data.filter(team => team.members && team.members.length > 0));
+      try {
+        const data = await fetchTeams();
+        setTeams(data.filter((team) => team.members && team.members.length > 0));
+      } catch (error) {
+        console.error('Error fetching teams:', error);
+      }
     };
     loadTeams();
   }, []);
@@ -28,7 +29,7 @@ const SavedTeamGroups = () => {
     <Box
       sx={{
         padding: '20px',
-        backgroundColor: '#27272a',
+        backgroundColor: '#27272a', // Dark background
         minHeight: '100vh',
       }}
     >
@@ -41,7 +42,7 @@ const SavedTeamGroups = () => {
           fontWeight: 'bold',
         }}
       >
-        {selectedGroup ? `Teams in ${selectedGroup.groupName}` : 'Saved Team Groups'}
+        {selectedGroup ? `Teams in ${selectedGroup.groupName}` : 'Saved Teams'}
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {teams.map((team) => (

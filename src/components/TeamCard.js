@@ -55,7 +55,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
       // Make the API call to update the team
       const teamName = encodeURIComponent(editableTeam.name);
       const response = await fetch(`http://127.0.0.1:8000/api/teams/${teamName}/edit_team/`, {
-        method: 'PUT',  // Or 'PATCH' depending on your backend
+        method: 'PUT', // Or 'PATCH' depending on your backend
         headers: {
           'Content-Type': 'application/json',
         },
@@ -66,7 +66,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
         throw new Error('Failed to update team');
       }
 
-      const data = await response.json();  // Assuming backend returns updated team data
+      const data = await response.json(); // Assuming backend returns updated team data
 
       // Call the onUpdateTeam callback to update the parent state
       onUpdateTeam(data);
@@ -85,7 +85,6 @@ const TeamCard = ({ team, onUpdateTeam }) => {
   };
 
   return (
-
     <Card
       sx={{
         borderRadius: '12px',
@@ -100,8 +99,6 @@ const TeamCard = ({ team, onUpdateTeam }) => {
       }}
     >
       <CardContent sx={{ padding: '25px' }}>
-
-
         {/* Team Name */}
         {isEditing ? (
           <TextField
@@ -119,7 +116,6 @@ const TeamCard = ({ team, onUpdateTeam }) => {
             }}
           />
         ) : (
-
           <Typography
             variant="h5"
             align="center"
@@ -130,18 +126,13 @@ const TeamCard = ({ team, onUpdateTeam }) => {
               textTransform: 'capitalize',
             }}
           >
-            {team.name}
-
-          <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#2596BE' }}>
             {editableTeam.name}
-
           </Typography>
         )}
 
         <Divider sx={{ marginBottom: '20px' }} />
 
         {/* Members List */}
-
         <Typography
           variant="h6"
           sx={{ fontWeight: 'bold', color: '#333', marginBottom: '15px' }}
@@ -149,9 +140,6 @@ const TeamCard = ({ team, onUpdateTeam }) => {
           Team Members
         </Typography>
         <List disablePadding>
-
-        <Typography variant="h6" gutterBottom>Members:</Typography>
-        <List>
           {editableTeam.members.map((member, index) => (
             <ListItem
               key={index}
@@ -250,7 +238,6 @@ const TeamCard = ({ team, onUpdateTeam }) => {
                 <EditIcon sx={{ color: '#2596BE' }} />
               </IconButton>
             </Tooltip>
-
           )}
         </Box>
       </CardContent>
