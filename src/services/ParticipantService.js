@@ -1,6 +1,4 @@
 const API_URL = 'http://127.0.0.1:8000/api/participants/';
-
-// Fetch all participants
 export const fetchParticipants = async () => {
   try {
     const response = await fetch(API_URL);

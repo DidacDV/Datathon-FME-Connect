@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -20,25 +20,72 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 const TeamCard = ({ team, onUpdateTeam }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editableTeam, setEditableTeam] = useState({ ...team });
+  const [editableTeam, setEditableTeam] = useState({
+    name: team.name,
+    members: team.members ? team.members.map((member) => member.name) : [],
+  });
+
+  // Sync team data when 'team' prop changes (to ensure it's up-to-date)
+  useEffect(() => {
+    setEditableTeam({
+      name: team.name,
+      members: team.members ? team.members.map((member) => member.name) : [],
+    });
+  }, [team]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
-    if (!isEditing) setEditableTeam({ ...team }); // Reset changes on cancel
+    if (isEditing) {
+      // Reset changes on cancel
+      setEditableTeam({
+        name: team.name,
+        members: team.members ? team.members.map((member) => member.name) : [],
+      });
+    }
   };
 
-  const handleSave = () => {
-    onUpdateTeam(editableTeam);
-    setIsEditing(false);
+  const handleSave = async () => {
+    // Prepare team data with the updated members list
+    const updatedTeam = {
+      ...editableTeam,
+      members: editableTeam.members.map((memberName) => ({ name: memberName })),
+    };
+
+    try {
+      // Make the API call to update the team
+      const teamName = encodeURIComponent(editableTeam.name);
+      const response = await fetch(`http://127.0.0.1:8000/api/teams/${teamName}/edit_team/`, {
+        method: 'PUT',  // Or 'PATCH' depending on your backend
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTeam),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update team');
+      }
+
+      const data = await response.json();  // Assuming backend returns updated team data
+
+      // Call the onUpdateTeam callback to update the parent state
+      onUpdateTeam(data);
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating team:', error);
+      // Optionally, show error feedback to the user
+    }
   };
 
-  const handleChange = (index, value) => {
+  const handleMemberChange = (index, value) => {
     const updatedMembers = [...editableTeam.members];
     updatedMembers[index] = value;
     setEditableTeam({ ...editableTeam, members: updatedMembers });
   };
 
   return (
+
     <Card
       sx={{
         borderRadius: '12px',
@@ -53,6 +100,8 @@ const TeamCard = ({ team, onUpdateTeam }) => {
       }}
     >
       <CardContent sx={{ padding: '25px' }}>
+
+
         {/* Team Name */}
         {isEditing ? (
           <TextField
@@ -70,6 +119,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
             }}
           />
         ) : (
+
           <Typography
             variant="h5"
             align="center"
@@ -81,12 +131,17 @@ const TeamCard = ({ team, onUpdateTeam }) => {
             }}
           >
             {team.name}
+
+          <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#2596BE' }}>
+            {editableTeam.name}
+
           </Typography>
         )}
 
         <Divider sx={{ marginBottom: '20px' }} />
 
         {/* Members List */}
+
         <Typography
           variant="h6"
           sx={{ fontWeight: 'bold', color: '#333', marginBottom: '15px' }}
@@ -94,6 +149,9 @@ const TeamCard = ({ team, onUpdateTeam }) => {
           Team Members
         </Typography>
         <List disablePadding>
+
+        <Typography variant="h6" gutterBottom>Members:</Typography>
+        <List>
           {editableTeam.members.map((member, index) => (
             <ListItem
               key={index}
@@ -107,7 +165,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
               {isEditing ? (
                 <TextField
                   value={member}
-                  onChange={(e) => handleChange(index, e.target.value)}
+                  onChange={(e) => handleMemberChange(index, e.target.value)}
                   fullWidth
                   size="small"
                   variant="outlined"
@@ -192,6 +250,7 @@ const TeamCard = ({ team, onUpdateTeam }) => {
                 <EditIcon sx={{ color: '#2596BE' }} />
               </IconButton>
             </Tooltip>
+
           )}
         </Box>
       </CardContent>

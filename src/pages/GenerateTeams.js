@@ -1,100 +1,121 @@
 import React, { useState } from 'react';
 
-const GenerateTeams = () => {
-  const [teams, setTeams] = useState([]);
-  const [message, setMessage] = useState('');
+const API_KMIN_URL = 'http://127.0.0.1:8000/api/teams/generate_teams_kmin/';
+const API_MACHINE_URL = 'http://127.0.0.1:8000/api/teams/generate_teams_machine/';
+// You can later implement the API call for generating teams inside this function
+const generateTeamsHandler = async () => {
+  try {
+    // Placeholder for your API call
+    console.log("Executing the algorithm to generate teams...");
+    // Add your API call to generate teams here
+    // For example: await fetch('/api/generate-teams', { method: 'POST' })
+  } catch (error) {
+    console.error("Error generating teams:", error);
+  }
+};
 
-  // Function to handle team generation
-  const handleGenerateTeams = async () => {
+const GenerateTeams = () => {
+  const [loading, setLoading] = useState(false);
+  const [responseMessage, setResponseMessage] = useState("");
+
+  const handleGenerateTeamsKMin = async () => {
+    setLoading(true);
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/generate-teams/', {
+        const response = await fetch(API_KMIN_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await response.json();
-      if (data.success) {
-        setTeams(data.teams);
-        setMessage('Teams generated successfully!');
-      } else {
-        setMessage(data.error || 'Error generating teams');
+        });
+      // Execute the placeholder function to simulate generating teams
+
+
+      if (!response.ok) {
+        throw new Error('Failed to generate teams');
       }
-    } catch (error) {
-      setMessage('Failed to generate teams.');
+      const data = await response.json();
+
+      console.log('Response Message:', data.message);  // e.g., 'Teams generated successfully'
+      console.log('Total Teams:', data.total_teams);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Function to handle saving teams
-  const handleSaveTeams = async () => {
+  const handleGenerateTeamsMachineLearning = async () => {
+    setLoading(true);
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/save-teams/', {
+        const response = await fetch(API_MACHINE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teams }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setMessage('Teams saved successfully!');
-      } else {
-        setMessage(data.error || 'Error saving teams');
+        });
+      // Execute the placeholder function to simulate generating teams
+
+
+      if (!response.ok) {
+        throw new Error('Failed to generate teams');
       }
-    } catch (error) {
-      setMessage('Failed to save teams.');
+      const data = await response.json();
+
+      console.log('Response Message:', data.message);  // e.g., 'Teams generated successfully'
+      console.log('Total Teams:', data.total_teams);
+    } finally {
+      setLoading(false);
+
     }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1 style={{ color: '#2596BE', textAlign: 'center' }}>Team Management</h1>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
-        <button
-          onClick={handleGenerateTeams}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#2596BE',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          Generate Teams
-        </button>
-        <button
-          onClick={handleSaveTeams}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: teams.length ? '#2596BE' : '#ccc',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: teams.length ? 'pointer' : 'not-allowed',
-          }}
-          disabled={!teams.length}
-        >
-          Save Teams
-        </button>
-      </div>
-      {message && <p style={{ color: '#2596BE', textAlign: 'center' }}>{message}</p>}
-      <div>
-        {teams.map((team, index) => (
-          <div
-            key={index}
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: '5px',
-              padding: '10px',
-              marginBottom: '10px',
-            }}
-          >
-            <h3 style={{ color: '#2596BE' }}>{team.name}</h3>
-            <ul>
-              {team.members.map((member, idx) => (
-                <li key={idx}>{member}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+
+    <div style={{ textAlign: 'center', padding: '20px' }}>
+      <h1 style={{ color: '#2596BE', fontSize: '2.5rem', marginBottom: '20px' }}>
+        Generate Teams
+      </h1>
+      <p style={{ color: '#555', marginBottom: '30px', fontSize: '1.2rem' }}>
+        Click the button below to generate teams based on participant data.
+      </p>
+
+        <div style={{display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap'}}>
+            {/* Button to trigger team generation */}
+            <button
+                onClick={handleGenerateTeamsMachineLearning}
+                style={{
+                    backgroundColor: '#2596BE',
+                    color: 'white',
+                    padding: '15px 30px',
+                    borderRadius: '10px',
+                    fontSize: '18px',
+                    border: 'none',
+                    cursor: 'pointer',
+                }}
+                disabled={loading}
+            >
+                {loading ? 'Generating Teams...' : 'Calculate Machine Learning'}
+            </button>
+
+            {/* Button for navigating to Saved Teams page */}
+            <button
+                onClick={handleGenerateTeamsKMin}
+                style={{
+                    backgroundColor: '#2596BE',
+                    color: 'white',
+                    padding: '15px 30px',
+                    borderRadius: '10px',
+                    fontSize: '18px',
+                    border: 'none',
+                    cursor: 'pointer',
+                }}
+                disabled={loading}
+            >
+                {loading ? 'Generating Teams...' : 'Calculate KMin'}
+            </button>
+        </div>
+
+        {/* Display response message after algorithm execution */}
+        {responseMessage && (
+            <div style={{marginTop: '20px', fontSize: '1.2rem', color: '#2596BE'}}>
+                {responseMessage}
+            </div>
+        )}
+
     </div>
   );
 };

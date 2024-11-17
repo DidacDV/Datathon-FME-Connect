@@ -11,6 +11,7 @@ import Teams from './pages/Teams';
 
 
 
+
 function App() {
   return (
     <Router>
@@ -20,7 +21,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/saved-teams" element={<SavedTeams />} />
-        <Route path="/participants" element={<Participants />} />
         <Route path="/map" element={<Map />} />
         <Route path="/generate-teams" element={<GenerateTeams />} />
         <Route path="/profile/:id" element={<ParticipantProfile />} />
