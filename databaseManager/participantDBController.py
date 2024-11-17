@@ -290,7 +290,6 @@ def getAlgorithmDict():
     dictionary = {}
     for alone in ParticipantNoLock.objects.all():
         participant = alone.id
-
         #Create class feature.
         f = Features(
             participant.age,
@@ -299,24 +298,28 @@ def getAlgorithmDict():
             parse_programming_skills(participant.programming_skills),
             participant.preferred_team_size,
             list(participant.preferred_language.split(", ")),
-            participant.preferred_role
+            participant.preferred_role,
+            parse_availability(participant.availability),
+            participant.university,
+            list(participant.friend_registration)
         )
 
         dictionary[participant.id] = f
     return dictionary
 
+def parse_availability(availability_str):
+    availability_list = availability_str.split(", ")
+    availability_dict = {}
+
+    for availability in availability_list:
+        day, value = availability.split(": ")
+        availability_dict[day] = True if value.strip() == "Yes" else False
+    return availability_dict
+
 def parse_programming_skills(skills_str):
-    # Split the string by commas to get individual skill-level pairs
     skills_list = skills_str.split(", ")
-
-    # Create an empty dictionary to store the parsed skills
     skills_dict = {}
-
     for skill in skills_list:
-        # Split each skill-level pair by the colon (:) to separate skill and level
         skill_name, level = skill.split(": ")
-
-        # Convert the level to an integer and add to the dictionary
         skills_dict[skill_name] = int(level)
-
     return skills_dict

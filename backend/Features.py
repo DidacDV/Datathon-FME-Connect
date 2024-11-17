@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from typing import Dict, List
 
@@ -11,3 +12,7 @@ class Features:
     preferred_team_size: int
     preferred_languages: List[str]
     preferred_role: str
+    disponiblity_days: Dict[str, bool]
+    university: str
+    friend_registration: List[str]
+
