@@ -14,5 +14,5 @@ class Features:
     preferred_role: str
     disponiblity_days: Dict[str, bool]
     university: str
-    friend_registration: List[uuid.UUID]
+    friend_registration: List[str]
 
