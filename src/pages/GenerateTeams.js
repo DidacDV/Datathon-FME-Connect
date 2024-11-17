@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 const API_KMIN_URL = 'http://127.0.0.1:8000/api/teams/generate_teams_kmin/';
 const API_MACHINE_URL = 'http://127.0.0.1:8000/api/teams/generate_teams_machine/';
 // You can later implement the API call for generating teams inside this function
@@ -58,10 +59,12 @@ const GenerateTeams = () => {
       console.log('Total Teams:', data.total_teams);
     } finally {
       setLoading(false);
+
     }
   };
 
   return (
+
     <div style={{ textAlign: 'center', padding: '20px' }}>
       <h1 style={{ color: '#2596BE', fontSize: '2.5rem', marginBottom: '20px' }}>
         Generate Teams
@@ -112,6 +115,7 @@ const GenerateTeams = () => {
                 {responseMessage}
             </div>
         )}
+
     </div>
   );
 };

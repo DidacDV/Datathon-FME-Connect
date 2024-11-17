@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+
 import { Typography, Grid, Box } from '@mui/material';
 import TeamCard from '../components/TeamCard';
 import { fetchTeams } from "../services/TeamService";
 
-const SavedTeams = () => {
-  const [teams, setTeams] = useState([]);
+
+const SavedTeamGroups = () => {
+  const [teamGroups, setTeamGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
 
   useEffect(() => {
     const loadTeams = async () => {
@@ -21,14 +25,23 @@ const SavedTeams = () => {
   };
 
   return (
-    <Box sx={{ padding: '20px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        padding: '20px',
+        backgroundColor: '#27272a',
+        minHeight: '100vh',
+      }}
+    >
       <Typography
         variant="h3"
         align="center"
         gutterBottom
-        sx={{ color: '#2596BE', fontWeight: 'bold' }}
+        sx={{
+          color: 'white',
+          fontWeight: 'bold',
+        }}
       >
-        Saved Teams
+        {selectedGroup ? `Teams in ${selectedGroup.groupName}` : 'Saved Team Groups'}
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {teams.map((team) => (
@@ -41,4 +54,4 @@ const SavedTeams = () => {
   );
 };
 
-export default SavedTeams;
+export default SavedTeamGroups;
