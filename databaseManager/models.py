@@ -100,11 +100,6 @@ class ParticipantNoLock(models.Model):
         primary_key=True,
         on_delete=models.CASCADE
     )
-    properties = ArrayField(
-        models.FloatField(),
-        blank=True,
-        default=list
-    )
     def _str_(self):
         return self.id
 

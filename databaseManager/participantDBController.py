@@ -153,13 +153,15 @@ def addLockedParticipants():
 
 
 def readTeams():
-    names = getJSONFromPath('/home/rubenpv/PycharmProjects/datathon/data/team_names.json')
-    for name in names:
-        team = Teams2024(
-            name = name["name"],
-            members = []
-        )
-        team.save()
+    data = getJSONFromPath('/home/rubenpv/PycharmProjects/datathon/data/team_names.json')
+    if 'team_names' in data:
+        team_names = data['team_names']
+        for name in team_names:
+            team = Teams2024(
+                name = name,
+                members = []
+            )
+            team.save()
 
 
 def addTeam(members):
@@ -171,3 +173,19 @@ def addTeam(members):
         team.members.append(name)
     team.save()
 
+def getAlgorithmDict():
+    dictionary = {}
+    for alone in ParticipantNoLock.objects.all():
+        participant = alone.id
+
+        #Create class feature.
+        Features f
+        f.age = participant.age
+        f.experience_level = participant.experience_level
+        f.hackathons_done = participant.hackathons_done
+        f.programming_skills = participant.programming_skills
+        f.preferred_team_size = participant.preferred_team_size
+        f.preferred_languages = participant.preferred_languages
+
+        dictionary[participant.id] = f
+    return dictionary
