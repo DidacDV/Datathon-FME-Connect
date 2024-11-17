@@ -41,7 +41,7 @@ const Home = () => {
             Generate Teams
           </button>
         </Link>
-        <Link to="/map">
+        <Link to="statistics">
           <button
             style={{
               backgroundColor: '#2596BE',
@@ -53,7 +53,7 @@ const Home = () => {
               cursor: 'pointer',
             }}
           >
-            Compatibility Map
+            View Statistics
           </button>
         </Link>
         <Link to="/saved-teams">
