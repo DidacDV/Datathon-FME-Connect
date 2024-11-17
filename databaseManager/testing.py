@@ -12,4 +12,3 @@ from databaseManager.participantDBController import readParticipants
 
 readParticipants('/home/rubenpv/Escritorio/datathon_participants.json')
 readTeams()
-addLockedParticipants()

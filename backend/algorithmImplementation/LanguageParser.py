@@ -57,5 +57,5 @@ language_mapping = {
 
 def getLanguageValue(language):
     if language not in language_mapping:
-        raise KeyError(f"Language '{language}' is not defined in language_mapping.")
+        return language_mapping['English']
     return language_mapping[language]

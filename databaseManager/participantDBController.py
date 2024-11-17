@@ -8,6 +8,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.forms.models import model_to_dict
+from pyinotify import compatibility_mode
 
 from databaseManager.models import Participant
 from rest_framework.response import Response
@@ -112,6 +113,7 @@ def edit_team(request, name):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view([''])
 
 def modifyParticipantEmail(name, email):
     try:
@@ -188,7 +190,8 @@ def readParticipants(filePath):
             introduction=row["Introduction"],
             technical_project=row["Technical Project"],
             future_excitement=row["Future Excitement"],
-            fun_fact=row["Fun Fact"]
+            fun_fact=row["Fun Fact"],
+            compatibility_field=0
         )
         participant.save()
 
@@ -203,15 +206,6 @@ def readParticipants(filePath):
                 id = participant,
             )
             participant.save()
-
-def calculateproperties(participant):
-    properties = {}
-    properties = [
-        participant.age,
-        participant.hackathons_done,
-        len(participant.interests),
-    ]
-    return properties
 
 def addLockedParticipants():
     added = []
@@ -261,7 +255,8 @@ def getAlgorithmDict():
             participant.hackathons_done,
             parse_programming_skills(participant.programming_skills),
             participant.preferred_team_size,
-            participant.preferred_language
+            list(participant.preferred_language.split(", ")),
+            participant.preferred_role
         )
 
         dictionary[participant.id] = f

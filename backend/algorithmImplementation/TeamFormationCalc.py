@@ -1,3 +1,4 @@
+import ast
 import math
 import uuid
 from typing import Dict
@@ -8,6 +9,10 @@ from backend.Features import Features
 from backend.algorithmImplementation import LanguageParser, algorithmLogic
 from backend.algorithmImplementation.algorithmLogic import *
 import dataclasses
+
+from databaseManager.participantDBController import addTeam
+
+
 class TeamFormationSystem:
     WEIGHTS = {
         "age": 1,
@@ -36,7 +41,7 @@ class TeamFormationSystem:
         minExp = float('inf')
         bestTeamChoice = None
         for idt, team in enumerate(teams):
-            if len(team) <= self.max_team_size:
+            if len(team) < self.max_team_size:
                 expOfTeam = sum(1 for member_id in team if self.participants[member_id].experience_level == expLevel)
                 if expOfTeam < minExp and self.checkRoleDisp(self.participants[uidToTry],team):
                     minExp = expOfTeam
@@ -52,7 +57,6 @@ class TeamFormationSystem:
 
     def createFeatureVector(self, features):
         featureVector = [
-            self.experience_map[features.experience_level],
             features.age,
             features.hackathons_done,
             features.preferred_team_size,
@@ -115,3 +119,8 @@ class TeamFormationSystem:
                 participant = self.participants[participant_id]
                 print(f"- {participant.age} ({participant.hackathons_done}) with experience LvL {participant.experience_level} and {participant.programming_skills}")
             print()
+
+    def save_teams(self,teams):
+        for i, team in enumerate(teams):
+            for participants in teams:
+                addTeam(participants)
