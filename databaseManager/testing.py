@@ -6,7 +6,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')  # Replace '
 django.setup()
 
 from databaseManager.participantDBController import getParticipant, getParticipantJSON, modifyParticipantEmail, \
-    addLockedParticipants, readTeams
+    addLockedParticipants, readTeams, getAlgorithmDict
 from databaseManager.participantDBController import readParticipants
 
 
