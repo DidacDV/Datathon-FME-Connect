@@ -1,20 +1,32 @@
+import ast
 import os
+import random
+
 import pandas as pd
 import json
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
+from django.forms.models import model_to_dict
+
 from databaseManager.models import Participant
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
+from pandas import isnull
+from backend.Features import Features
+from backend.ParticipantSerializer import ParticipantSerializer
+from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
 
-def getParticipant(name):
-    try:
-        participant = Participant.objects.get(name=name)
-        return participant
-    except Participant.DoesNotExist:
-        # Handle the case where the participant doesn't exist
-        print(f"No participant found with the name {name}.")
-        return None
+
+@api_view(['GET'])
+def get_participant(request, id):
+    participant = get_object_or_404(Participant, id=id)
+    data = model_to_dict(participant)
+    return Response(data, status=200)
 
 def getParticipantJSON(name):
     try:
@@ -26,10 +38,80 @@ def getParticipantJSON(name):
         return None
 
 @api_view(['GET'])
-def get_participants():
+def get_participants(request):
     participant = Participant.objects.all()
     data = [model_to_dict(participant) for participant in participant]
     return Response(data)
+    
+@api_view(['GET'])
+def get_participant_by_id(request, id):
+    try:
+        participant = Participant.objects.get(id=id)
+        data = model_to_dict(participant)
+        return Response(data, status=200)
+    except Participant.DoesNotExist:
+        return Response({'error': 'Participant not found'}, status=404)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def get_Teams2024(request):
+    teams2024 = Teams2024.objects.all()
+    data = []
+
+    for team in teams2024:
+        team_dict = model_to_dict(team)
+
+        # Initialize an empty list for member details
+        member_details = []
+
+        # Check if members exists and is not None
+        if team_dict.get('members'):
+            for member_id in team_dict['members']:
+                try:
+                    participant = Participant.objects.get(id=member_id)
+                    member_details.append({
+                        'id': str(participant.id),
+                        'name': participant.name
+                    })
+                except ObjectDoesNotExist:
+                    member_details.append({
+                        'id': member_id,
+                        'name': None
+                    })
+
+        # Replace the array of UUIDs with the array of member details
+        team_dict['members'] = member_details
+        data.append(team_dict)
+
+    return Response(data)
+
+@api_view(['PATCH'])
+def edit_participant(request, id):
+    try:
+        participant = Participant.objects.get(id=id)
+    except Participant.DoesNotExist:
+        return Response({'error': 'Participant not found'}, status=404)
+
+    serializer = ParticipantSerializer(participant, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+def edit_team(request, name):
+    try:
+        team = Teams2024.objects.get(name=name)
+    except Teams2024.DoesNotExist:
+        return Response({'error': 'Team not found'}, status=404)
+    serializer = TeamSerializer(team, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def modifyParticipantEmail(name, email):
     try:
@@ -109,3 +191,94 @@ def readParticipants(filePath):
             fun_fact=row["Fun Fact"]
         )
         participant.save()
+
+        #If alone, add to lock OR If team size and team preferred size are equal (team is already closed).
+        if 1 == participant.preferred_team_size or participant.preferred_team_size - 1 == len(participant.friend_registration):
+            participant = ParticipantLock(
+                id = participant
+            )
+            participant.save()
+        else:
+            participant = ParticipantNoLock(
+                id = participant,
+            )
+            participant.save()
+
+def calculateproperties(participant):
+    properties = {}
+    properties = [
+        participant.age,
+        participant.hackathons_done,
+        len(participant.interests),
+    ]
+    return properties
+
+def addLockedParticipants():
+    added = []
+    for locked in ParticipantLock.objects.all():
+        if not added.__contains__(locked.id):
+            participant = locked.id
+            members = {str(participant.id)}
+            if participant.preferred_team_size != 1:
+                friends = ast.literal_eval(participant.friend_registration)
+                for friend in friends:
+                    members.add(friend)
+            addTeam(members)
+            added.append(members)
+            locked.delete()
+
+
+def readTeams():
+    data = getJSONFromPath('/home/rubenpv/PycharmProjects/datathon/data/team_names.json')
+    if 'team_names' in data:
+        team_names = data['team_names']
+        for name in team_names:
+            team = Teams2024(
+                name = name,
+                members = []
+            )
+            team.save()
+
+
+def addTeam(members):
+    empty_teams = list(Teams2024.objects.filter(members = []))
+    if not empty_teams:
+        raise ValueError("No available teams without members.")
+    team = random.choice(empty_teams)
+    for name in members:
+        team.members.append(name)
+    team.save()
+
+def getAlgorithmDict():
+    dictionary = {}
+    for alone in ParticipantNoLock.objects.all():
+        participant = alone.id
+
+        #Create class feature.
+        f = Features(
+            participant.age,
+            participant.experience_level,
+            participant.hackathons_done,
+            parse_programming_skills(participant.programming_skills),
+            participant.preferred_team_size,
+            participant.preferred_language
+        )
+
+        dictionary[participant.id] = f
+    return dictionary
+
+def parse_programming_skills(skills_str):
+    # Split the string by commas to get individual skill-level pairs
+    skills_list = skills_str.split(", ")
+
+    # Create an empty dictionary to store the parsed skills
+    skills_dict = {}
+
+    for skill in skills_list:
+        # Split each skill-level pair by the colon (:) to separate skill and level
+        skill_name, level = skill.split(": ")
+
+        # Convert the level to an integer and add to the dictionary
+        skills_dict[skill_name] = int(level)
+
+    return skills_dict

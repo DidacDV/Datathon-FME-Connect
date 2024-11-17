@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
+
 
 # Create your models here.
 class Participant(models.Model):
@@ -77,6 +79,43 @@ class Participant(models.Model):
     technical_project = models.TextField()
     future_excitement = models.TextField()
     fun_fact = models.TextField()
+
+    def _str_(self):
+        return self.id
+
+class ParticipantLock(models.Model):
+    id = models.OneToOneField(
+        Participant,
+        primary_key=True,
+        on_delete=models.CASCADE
+    )
+    def _str_(self):
+        return self.id
+    class Meta:
+        db_table = 'databaseManager_participantlock'
+
+class ParticipantNoLock(models.Model):
+    id = models.OneToOneField(
+        Participant,
+        primary_key=True,
+        on_delete=models.CASCADE
+    )
+    def _str_(self):
+        return self.id
+
+    class Meta:
+        db_table = 'databaseManager_participantnolock'
+
+class Teams2024(models.Model):
+    name = models.CharField(
+        primary_key=True,
+        unique = True,
+        max_length=100
+    )
+    members = ArrayField(
+        models.TextField(),
+        null= True,
+    )
 
     def _str_(self):
         return self.name
