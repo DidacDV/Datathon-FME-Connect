@@ -11,15 +11,14 @@ from pandas import isnull
 from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
 
-def getParticipant(name):
-    try:
-        participant = Participant.objects.get(name=name)
-        return participant
-    except Participant.DoesNotExist:
-        # Handle the case where the participant doesn't exist
-        print(f"No participant found with the name {name}.")
-        return None
+
+@api_view(['GET'])
+def get_participant(request, id):
+    participant = get_object_or_404(Participant, id=id)
+    data = model_to_dict(participant)
+    return Response(data, status=200)
 
 def getParticipantJSON(name):
     try:
@@ -35,6 +34,17 @@ def get_participants():
     participant = Participant.objects.all()
     data = [model_to_dict(participant) for participant in participant]
     return Response(data)
+    
+@api_view(['GET'])
+def get_participant_by_id(request, id):
+    try:
+        participant = Participant.objects.get(id=id)
+        data = model_to_dict(participant)
+        return Response(data, status=200)
+    except Participant.DoesNotExist:
+        return Response({'error': 'Participant not found'}, status=404)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
 
 def modifyParticipantEmail(name, email):
     try:
