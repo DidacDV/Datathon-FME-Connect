@@ -1,9 +1,14 @@
+import ast
 import os
+import random
+
 import pandas as pd
 import json
 
 from django.forms.models import model_to_dict
-from databaseManager.models import Participant
+from pandas import isnull
+
+from databaseManager.models import Participant, ParticipantLock, ParticipantNoLock, Teams2024
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
@@ -109,3 +114,78 @@ def readParticipants(filePath):
             fun_fact=row["Fun Fact"]
         )
         participant.save()
+
+        #If alone, add to lock OR If team size and team preferred size are equal (team is already closed).
+        if 1 == participant.preferred_team_size or participant.preferred_team_size - 1 == len(participant.friend_registration):
+            participant = ParticipantLock(
+                id = participant
+            )
+            participant.save()
+        else:
+            participant = ParticipantNoLock(
+                id = participant,
+                properties = calculateproperties(participant)
+            )
+            participant.save()
+
+def calculateproperties(participant):
+    properties = {}
+    properties = [
+        participant.age,
+        participant.hackathons_done,
+        len(participant.interests),
+    ]
+    return properties
+
+def addLockedParticipants():
+    added = []
+    for locked in ParticipantLock.objects.all():
+        if not added.__contains__(locked.id):
+            participant = locked.id
+            members = {str(participant.id)}
+            if participant.preferred_team_size != 1:
+                friends = ast.literal_eval(participant.friend_registration)
+                for friend in friends:
+                    members.add(friend)
+            addTeam(members)
+            added.append(members)
+            locked.delete()
+
+
+def readTeams():
+    data = getJSONFromPath('/home/rubenpv/PycharmProjects/datathon/data/team_names.json')
+    if 'team_names' in data:
+        team_names = data['team_names']
+        for name in team_names:
+            team = Teams2024(
+                name = name,
+                members = []
+            )
+            team.save()
+
+
+def addTeam(members):
+    empty_teams = list(Teams2024.objects.filter(members = []))
+    if not empty_teams:
+        raise ValueError("No available teams without members.")
+    team = random.choice(empty_teams)
+    for name in members:
+        team.members.append(name)
+    team.save()
+
+def getAlgorithmDict():
+    dictionary = {}
+    for alone in ParticipantNoLock.objects.all():
+        participant = alone.id
+
+        #Create class feature.
+        Features f
+        f.age = participant.age
+        f.experience_level = participant.experience_level
+        f.hackathons_done = participant.hackathons_done
+        f.programming_skills = participant.programming_skills
+        f.preferred_team_size = participant.preferred_team_size
+        f.preferred_languages = participant.preferred_languages
+
+        dictionary[participant.id] = f
+    return dictionary
