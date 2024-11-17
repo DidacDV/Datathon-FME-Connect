@@ -1,5 +1,5 @@
-const API_URL = 'http://127.0.0.1:8000/api/participants/';
-export const fetchParticipants = async () => {
+const API_URL = 'http://127.0.0.1:8000/api/teams/';
+export const fetchTeams = async () => {
   try {
     const response = await fetch(API_URL);
     if (!response.ok) {
@@ -8,7 +8,7 @@ export const fetchParticipants = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching participants:', error);
+    console.error('Error fetching teams:', error);
     return [];
   }
 };
