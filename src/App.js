@@ -5,6 +5,7 @@ import SavedTeams from './pages/SavedTeams';
 import Profile from './pages/Participants';
 import Navbar from './components/Navbar';
 import Map from './pages/Map';
+import GenerateTeams from "./pages/GenerateTeams";
 
 
 
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/saved-teams" element={<SavedTeams />} />
+        <Route path="/generate-teams" element={<GenerateTeams />} />
         <Route path="/participants" element={<Profile />} />
         <Route path="/map" element={<Map />} />
 
