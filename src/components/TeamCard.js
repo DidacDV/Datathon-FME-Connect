@@ -1,29 +1,143 @@
-// In your TeamCard component
-import React from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  TextField,
+  Box,
+  IconButton,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 
 const TeamCard = ({ team, onUpdateTeam }) => {
-  const handleClick = () => {
-    // Handle update logic (optional)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableTeam, setEditableTeam] = useState({
+    name: team.name,
+    members: team.members ? team.members.map((member) => member.name) : [],
+  });
+
+  // Sync team data when 'team' prop changes (to ensure it's up-to-date)
+  useEffect(() => {
+    setEditableTeam({
+      name: team.name,
+      members: team.members ? team.members.map((member) => member.name) : [],
+    });
+  }, [team]);
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (isEditing) {
+      // Reset changes on cancel
+      setEditableTeam({
+        name: team.name,
+        members: team.members ? team.members.map((member) => member.name) : [],
+      });
+    }
+  };
+
+  const handleSave = async () => {
+    // Prepare team data with the updated members list
+    const updatedTeam = {
+      ...editableTeam,
+      members: editableTeam.members.map((memberName) => ({ name: memberName })),
+    };
+
+    try {
+      // Make the API call to update the team
+      const teamName = encodeURIComponent(editableTeam.name);
+      const response = await fetch(`http://127.0.0.1:8000/api/teams/${teamName}/edit_team/`, {
+        method: 'PUT',  // Or 'PATCH' depending on your backend
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTeam),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update team');
+      }
+
+      const data = await response.json();  // Assuming backend returns updated team data
+
+      // Call the onUpdateTeam callback to update the parent state
+      onUpdateTeam(data);
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating team:', error);
+      // Optionally, show error feedback to the user
+    }
+  };
+
+  const handleMemberChange = (index, value) => {
+    const updatedMembers = [...editableTeam.members];
+    updatedMembers[index] = value;
+    setEditableTeam({ ...editableTeam, members: updatedMembers });
   };
 
   return (
-    <Card>
+    <Card sx={{ borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', backgroundColor: '#ffffff', marginBottom: '20px' }}>
       <CardContent>
-        <Typography variant="h5">{team.name}</Typography>
+        {/* Team Name */}
+        {isEditing ? (
+          <TextField
+            label="Team Name"
+            value={editableTeam.name}
+            onChange={(e) => setEditableTeam({ ...editableTeam, name: e.target.value })}
+            fullWidth
+            sx={{ marginBottom: '10px' }}
+          />
+        ) : (
+          <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#2596BE' }}>
+            {editableTeam.name}
+          </Typography>
+        )}
 
-        {/* Render members */}
-        <div>
-          {team.members && team.members.length > 0 ? (
-            team.members.map((member) => (
-              <Typography key={member.id} variant="body2">
-                {member.name}
-              </Typography>
-            ))
+        {/* Members List */}
+        <Typography variant="h6" gutterBottom>Members:</Typography>
+        <List>
+          {editableTeam.members.map((member, index) => (
+            <ListItem key={index} sx={{ padding: '5px 0' }}>
+              {isEditing ? (
+                <TextField
+                  value={member}
+                  onChange={(e) => handleMemberChange(index, e.target.value)}
+                  fullWidth
+                />
+              ) : (
+                <ListItemText primary={member} />
+              )}
+            </ListItem>
+          ))}
+        </List>
+
+        {/* Action Buttons */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+          {isEditing ? (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<SaveIcon />}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
           ) : (
-            <Typography variant="body2">No members available</Typography>
+            <IconButton color="primary" onClick={handleEditToggle}>
+              <EditIcon />
+            </IconButton>
           )}
-        </div>
+          {isEditing && (
+            <Button variant="outlined" color="secondary" onClick={handleEditToggle}>
+              Cancel
+            </Button>
+          )}
+        </Box>
       </CardContent>
     </Card>
   );

@@ -9,7 +9,7 @@ const SavedTeams = () => {
   useEffect(() => {
     const loadTeams = async () => {
       const data = await fetchTeams();
-      setTeams(data);
+      setTeams(data.filter(team => team.members && team.members.length > 0));
     };
     loadTeams();
   }, []);
