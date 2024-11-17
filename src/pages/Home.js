@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>
       <h1 style={{ color: '#2596BE', fontSize: '2.5rem', marginBottom: '20px' }}>
-        Datathon FME Connect
+        Welcome to the Datathon FME Connect Dashboard
       </h1>
       <p style={{ color: '#555', marginBottom: '30px', fontSize: '1.2rem' }}>
         Manage participants, generate teams, and view compatibility data.
