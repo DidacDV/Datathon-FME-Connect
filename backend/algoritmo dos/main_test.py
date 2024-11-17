@@ -1,17 +1,22 @@
 import os
+import sys
 import django
-import ast
-import random
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-
 # Configuración de Django
+sys.path.append('/home/omar/datathon')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.utils import class_weight
+import random
+import numpy as np
+from joblib import Parallel, delayed
 
-from databaseManager.models import ParticipantNoLock, Teams2024
-from backend.Features import Features
+
+
+from databaseManager.models import Participant
 
 
 def parse_programming_skills(skills_str: str) -> dict:
@@ -31,297 +36,126 @@ def parse_programming_skills(skills_str: str) -> dict:
 def get_friends_list(friend_registration_str: str) -> set:
     """Convierte la lista de amigos de texto a un conjunto."""
     try:
-        return set(ast.literal_eval(friend_registration_str))
-    except (SyntaxError, ValueError) as e:
+        return set(eval(friend_registration_str))  # Usar eval con precaución
+    except Exception as e:
         print(f"Error al parsear lista de amigos: {e}")
         return set()
 
-def get_training_data_from_participant(batch_size=100):
-    """Obtiene los datos necesarios para entrenar el modelo desde Participant."""
-    try:
-        participants = Participant.objects.select_related('id').iterator(chunk_size=batch_size)
-        training_data = []
 
-        for participant in participants:
-            try:
-                data = {
-                    "id": participant.id,
-                    "name": participant.name,
-                    "programming_skills": parse_programming_skills(participant.programming_skills) if participant.programming_skills else {},
-                    "experience_level": participant.experience_level,
-                    "preferred_role": participant.preferred_role,
-                    "preferred_language": participant.preferred_language or "No especificado",
-                    "friends": get_friends_list(participant.friend_registration) if participant.friend_registration else set(),
-                    "label": participant.compatibility_label  # Usa el campo agregado
-                }
-                print(f"Datos procesados para participante {participant.id}: {data}")
-                training_data.append(data)
-            except Exception as e:
-                print(f"Error procesando participante {participant.id}: {e}")
-                continue
-
-        return training_data
-    except Exception as e:
-        print(f"Error al obtener datos de Participant: {e}")
-        return []
+def transform_participant_data(participant):
+    """Transforma los datos de un participante en un formato procesable."""
+    return {
+        "id": participant.id,
+        "age": participant.age,
+        "year_of_study": participant.year_of_study,
+        "dietary_restrictions": participant.dietary_restrictions,
+        "programming_skills": parse_programming_skills(participant.programming_skills),
+        "experience_level": participant.experience_level,
+        "hackathons_done": participant.hackathons_done,
+        "interests": set(participant.interests.split(", ")) if participant.interests else set(),
+        "preferred_role": participant.preferred_role,
+        "objective": participant.objective,
+        "interest_in_challenges": participant.interest_in_challenges,
+        "preferred_language": participant.preferred_language,
+        "friend_registration": get_friends_list(participant.friend_registration),
+        "preferred_team_size": participant.preferred_team_size,
+        "availability": set(participant.availability.split(", ")) if participant.availability else set(),
+        "shirt_size": participant.shirt_size,
+        "university": participant.university,
+    }
 
 
+def generate_features(participants_data, max_pairs=10000):
+    """Genera características y etiquetas para una muestra de pares de participantes."""
+    from itertools import combinations
 
-def get_relevant_data_for_relationships(batch_size=100):
-    """Obtiene los datos necesarios para relacionar participantes en lotes."""
-    try:
-        nolock_participants = ParticipantNoLock.objects.select_related('id').iterator(chunk_size=batch_size)
-        participants_data = []
+    features_list = []
+    pairs = []
+    sampled_pairs = random.sample(list(combinations(participants_data, 2)), max_pairs)
 
-        for nolock in nolock_participants:
-            participant = nolock.id
-            try:
-                participants_data.append({
-                    "id": participant.id,
-                    "name": participant.name,
-                    "programming_skills": parse_programming_skills(participant.programming_skills) if participant.programming_skills else {},
-                    "experience_level": participant.experience_level,
-                    "preferred_role": participant.preferred_role,
-                    "preferred_team_size": participant.preferred_team_size,
-                    "preferred_language": participant.preferred_language or "No especificado",
-                    "friends": get_friends_list(participant.friend_registration) if participant.friend_registration else set()
-                })
-            except Exception as e:
-                print(f"Error procesando participante {participant.id}: {e}")
-                continue
+    for p1, p2 in sampled_pairs:
+        base_features = {
+            "age_difference": abs(p1["age"] - p2["age"]),
+            "year_of_study_match": int(p1["year_of_study"] == p2["year_of_study"]),
+            "dietary_match": int(p1["dietary_restrictions"] == p2["dietary_restrictions"]),
+            "shared_programming_skills": sum([
+                abs(p1["programming_skills"].get(skill, 0) - p2["programming_skills"].get(skill, 0)) <= 2
+                for skill in set(p1["programming_skills"]).union(p2["programming_skills"])
+            ]),
+            "experience_match": int(p1["experience_level"] == p2["experience_level"]),
+            "hackathon_difference": abs(p1["hackathons_done"] - p2["hackathons_done"]),
+            "common_interests": len(p1["interests"] & p2["interests"]),
+            "role_diversity": int(p1["preferred_role"] != p2["preferred_role"]),
+            "common_languages": len(set(p1["preferred_language"].split(", ")) & set(p2["preferred_language"].split(", "))),
+            "friendship": int(p1["id"] in p2["friend_registration"] or p2["id"] in p1["friend_registration"]),
+            "availability_overlap": len(p1["availability"] & p2["availability"]),
+            "university_match": int(p1["university"] == p2["university"]),
+            "shirt_size_match": int(p1["shirt_size"] == p2["shirt_size"]),
+        }
 
-        return participants_data
-    except Exception as e:
-        print(f"Error al obtener datos de ParticipantNoLock: {e}")
-        return []
+        derived_features = {
+            "skills_experience_ratio": base_features["shared_programming_skills"] / (base_features["experience_match"] + 1),
+            "compatibility_score": (base_features["shared_programming_skills"] * 0.5 +
+                                    base_features["common_interests"] * 0.3 +
+                                    base_features["friendship"] * 0.2),
+            "programming_skill_density": base_features["shared_programming_skills"] / (1 + len(p1["programming_skills"])),
+            "normalized_hackathon_difference": base_features["hackathon_difference"] / (1 + p1["hackathons_done"] + p2["hackathons_done"]),
+        }
 
+        features = {**base_features, **derived_features}
+        features_list.append(features)
+        pairs.append((p1["id"], p2["id"]))
 
-def calculate_compatibility_score(p1: dict, p2: dict) -> float:
-    """Calcula la compatibilidad entre dos participantes."""
-    score = 0.0
-
-    # 1. Compatibilidad en habilidades de programación
-    skill_complement = 0
-    for skill, level in p1['programming_skills'].items():
-        if skill in p2['programming_skills']:
-            skill_diff = abs(level - p2['programming_skills'][skill])
-            if skill_diff <= 2:
-                skill_complement += 0.2  # Más puntos por habilidades similares
-            else:
-                skill_complement += 0.1  # Menos puntos por habilidades complementarias
-    score += skill_complement
-
-    # 2. Compatibilidad de nivel de experiencia
-    if p1['experience_level'] == p2['experience_level']:
-        score += 0.3  # Más peso a niveles de experiencia similares
-
-    # 3. Diversidad de roles
-    if p1['preferred_role'] != p2['preferred_role']:
-        score += 0.4  # Fomenta diversidad de roles
-
-    # 4. Compatibilidad de idiomas
-    p1_languages = set(p1['preferred_language'].split(", ")) if p1['preferred_language'] else set()
-    p2_languages = set(p2['preferred_language'].split(", ")) if p2['preferred_language'] else set()
-    common_languages = p1_languages & p2_languages
-    if common_languages:
-        score += 0.3  # Más puntos por idiomas comunes
-
-    # 5. Amistad preexistente
-    if p1['id'] in p2['friends'] or p2['id'] in p1['friends']:
-        score += 0.5  # Prioriza participantes que se conocen
-
-    # 6. Compatibilidad en intereses
-    p1_interests = set(p1.get('interests', "").split(", ")) if p1.get('interests') else set()
-    p2_interests = set(p2.get('interests', "").split(", ")) if p2.get('interests') else set()
-    common_interests = p1_interests & p2_interests
-    if common_interests:
-        score += len(common_interests) * 0.1  # 0.1 por cada interés común
-
-    # 7. Compatibilidad en objetivos (opcional)
-    if p1.get('objective') and p2.get('objective') and p1['objective'] == p2['objective']:
-        score += 0.2  # Más puntos por objetivos similares
-
-    # 8. Compatibilidad en disponibilidad
-    p1_availability = set(p1.get('availability', "").split(", ")) if p1.get('availability') else set()
-    p2_availability = set(p2.get('availability', "").split(", ")) if p2.get('availability') else set()
-    if p1_availability & p2_availability:
-        score += 0.2  # Más puntos si comparten disponibilidad
-
-    # 9. Bonus por diversidad total
-    # Fomenta equipos con una mezcla de habilidades poco comunes
-    p1_skills_set = set(p1['programming_skills'].keys())
-    p2_skills_set = set(p2['programming_skills'].keys())
-    unique_skills = p1_skills_set ^ p2_skills_set
-    score += len(unique_skills) * 0.05  # 0.05 por habilidad única
-
-    return score
-
-def calculate_compatibility_score_with_model(model, p1, p2):
-    """Calcula la compatibilidad usando el modelo entrenado."""
-    features = [
-        sum([abs(p1['programming_skills'].get(skill, 0) - p2['programming_skills'].get(skill, 0)) <= 2
-             for skill in set(p1['programming_skills']).union(p2['programming_skills'])]),
-        int(p1['experience_level'] == p2['experience_level']),
-        int(p1['preferred_role'] != p2['preferred_role']),
-        len(set(p1['preferred_language'].split(", ")) & set(p2['preferred_language'].split(", "))),
-        int(p1['id'] in p2['friends'] or p2['id'] in p1['friends']),
-        len(set(p1.get('interests', "").split(", ")) & set(p2.get('interests', "").split(", "))),
-        len(set(p1.get('availability', "").split(", ")) & set(p2.get('availability', "").split(", "))),
-        len(set(p1['programming_skills'].keys()) ^ set(p2['programming_skills'].keys())),
-    ]
-    return model.predict_proba([features])[0][1]  # Probabilidad de compatibilidad
-
-def apply_model_on_participantnolock(participants_data, model):
-    """Forma equipos basados en datos de ParticipantNoLock usando el modelo entrenado."""
-    processed_ids = set()
-
-    for participant in participants_data:
-        if participant["id"] in processed_ids:
-            continue
-
-        team_members = {participant["id"]}
-        friends = participant["friends"]
-        team_members.update(friends)
-
-        spots_needed = participant["preferred_team_size"] - len(team_members)
-
-        while spots_needed > 0:
-            best_score = -1
-            best_match = None
-
-            for candidate in participants_data:
-                if candidate["id"] in processed_ids or candidate["id"] in team_members:
-                    continue
-
-                score = calculate_compatibility_score_with_model(model, participant, candidate)
-                if score > best_score:
-                    best_score = score
-                    best_match = candidate
-
-            if best_match:
-                team_members.add(best_match["id"])
-                team_members.update(best_match["friends"])
-                spots_needed = participant["preferred_team_size"] - len(team_members)
-            else:
-                break
-
-        processed_ids.update(team_members)
-
-        try:
-            save_team_to_db(team_members)
-        except ValueError as e:
-            print(f"Error al guardar el equipo: {e}")
+    return features_list, pairs
 
 
-def train_compatibility_model(training_data):
-    """Entrena un modelo de Random Forest para predecir compatibilidad."""
-    X = [list(features.values()) for features, label in training_data]
-    y = [label for features, label in training_data]
+def optimize_logistic_regression(features, labels):
+    """Optimiza los hiperparámetros del modelo de Regresión Logística."""
+    X = [list(f.values()) for f in features]
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
 
-    # Verificar si las etiquetas no son todas iguales
-    if len(set(y)) == 1:
-        raise ValueError("Todas las etiquetas son iguales. El modelo no puede entrenarse.")
-    
-    # Dividir en entrenamiento y prueba
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    param_grid = {
+        "C": [0.01, 0.1, 1],  # Reducción de combinaciones
+        "solver": ["liblinear", "lbfgs"]
+    }
 
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+    model = LogisticRegression(max_iter=1000, random_state=42, class_weight="balanced")
+    grid_search = GridSearchCV(model, param_grid, cv=3, scoring="roc_auc", n_jobs=-1)
+    grid_search.fit(X_scaled, labels)
 
-    # Evaluar el modelo
-    y_pred = model.predict(X_test)
-    print(f"Precisión del modelo: {accuracy_score(y_test, y_pred)}")
+    print(f"Mejores parámetros: {grid_search.best_params_}")
+    print(f"Mejor precisión en validación cruzada: {grid_search.best_score_:.4f}")
 
-    return model
-
-def generate_training_data_from_participant(participants_data):
-    """Genera un dataset para entrenamiento con datos históricos de Participant."""
-    training_data = []
-
-    for i, p1 in enumerate(participants_data):
-        for j, p2 in enumerate(participants_data):
-            if i >= j:
-                continue  # Evita pares duplicados o comparaciones consigo mismos
-
-            features = {
-                "skill_complement": sum(
-                    [abs(p1['programming_skills'].get(skill, 0) - p2['programming_skills'].get(skill, 0)) <= 2
-                     for skill in set(p1['programming_skills']).union(p2['programming_skills'])]
-                ),
-                "experience_match": int(p1['experience_level'] == p2['experience_level']),
-                "role_diversity": int(p1['preferred_role'] != p2['preferred_role']),
-                "common_languages": len(set(p1['preferred_language'].split(", ")) & set(p2['preferred_language'].split(", "))),
-                "friendship": int(p1['id'] in p2['friends'] or p2['id'] in p1['friends']),
-                "unique_skills": len(set(p1['programming_skills'].keys()) ^ set(p2['programming_skills'].keys())),
-            }
-            label = p1['label']  # Usa el valor real de `compatibility_label`
-            training_data.append((features, label))
-
-    print(f"Datos generados: {len(training_data)} pares")
-    return training_data
-
-def form_teams(participants_data: list, model):
-    """Forma equipos y los inserta en la tabla Teams2024."""
-    processed_ids = set()
-
-    for participant in participants_data:
-        if participant["id"] in processed_ids:
-            continue
-
-        team_members = {participant["id"]}
-        friends = participant["friends"]
-        team_members.update(friends)
-
-        spots_needed = participant["preferred_team_size"] - len(team_members)
-
-        while spots_needed > 0:
-            best_score = -1
-            best_match = None
-
-            for candidate in participants_data:
-                if candidate["id"] in processed_ids or candidate["id"] in team_members:
-                    continue
-
-                score = calculate_compatibility_score_with_model(model, participant, candidate)
-                if score > best_score:
-                    best_score = score
-                    best_match = candidate
-
-            if best_match:
-                team_members.add(best_match["id"])
-                team_members.update(best_match["friends"])
-                spots_needed = participant["preferred_team_size"] - len(team_members)
-            else:
-                break
-
-        processed_ids.update(team_members)
-
-        try:
-            save_team_to_db(team_members)
-        except ValueError as e:
-            print(f"Error al guardar el equipo: {e}")
-
-
-def save_team_to_db(members: set):
-    """Guarda un equipo en la tabla Teams2024."""
-    empty_teams = list(Teams2024.objects.filter(members=[]))
-
-    if not empty_teams:
-        raise ValueError("No hay equipos disponibles sin miembros.")
-
-    team = random.choice(empty_teams)
-    team.members.extend(members)
-    team.save()
-    print(f"Equipo guardado en Teams2024: {team.name} con miembros {team.members}")
+    best_model = grid_search.best_estimator_
+    return best_model, scaler
 
 
 if __name__ == "__main__":
-    # Paso 1: Entrenar el modelo con datos de Participant
-    participant_training_data = get_training_data_from_participant(batch_size=100)
-    training_data = generate_training_data_from_participant(participant_training_data)
-    model = train_compatibility_model(training_data)
+    # Carga y preprocesamiento de datos
+    participants = Participant.objects.all()
+    participants_data = [transform_participant_data(p) for p in participants]
 
-    # Paso 2: Aplicar el modelo en ParticipantNoLock
-    participantnolock_data = get_relevant_data_for_relationships(batch_size=100)
-    apply_model_on_participantnolock(participantnolock_data, model)
+    # Generar una muestra de características y etiquetas
+    features_list, pairs = generate_features(participants_data, max_pairs=30000)
+    labels = [
+        1 if features["compatibility_score"] > 0.6 else 0
+        for features in features_list
+    ]
 
+    # Optimizar el modelo
+    model, scaler = optimize_logistic_regression(features_list, labels)
+
+    # Evaluación
+    X = [list(f.values()) for f in features_list]
+    X_scaled = scaler.transform(X)
+    predictions = model.predict(X_scaled)
+
+    print("Reporte de clasificación:")
+    print(classification_report(labels, predictions))
+
+    print("Matriz de confusión:")
+    print(confusion_matrix(labels, predictions))
+
+    roc_auc = roc_auc_score(labels, model.predict_proba(X_scaled)[:, 1])
+    print(f"ROC-AUC: {roc_auc:.4f}")
