@@ -6,40 +6,58 @@ const Navbar = () => {
     <nav
       style={{
         display: 'flex',
+        alignItems: 'center', // Vertically center content
         justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '20px 40px', // Increased padding for a bigger navbar
+        padding: '20px 40px',
         backgroundColor: '#ffffff',
-        color: 'white',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // Optional: Add a shadow for better visibility
+        position: 'relative',
       }}
     >
-      {/* Logo on the Left */}
+      {/* Logo in the Left Corner */}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <img
           src={`${process.env.PUBLIC_URL}/aed-logo.png`}
           alt="AED Logo"
           style={{
-            height: '80px', // Increased height for a bigger logo
-            width: 'auto', // Maintain aspect ratio
-            marginRight: '15px',
+            height: '80px',
+            width: 'auto',
           }}
         />
-        {/* <h1 style={{ color: '#2596BE', fontSize: '28px', margin: 0 }}>AED Platform</h1> */}
       </div>
 
-      {/* Navigation Buttons on the Right */}
-      <div style={{ display: 'flex', gap: '15px' }}>
+      {/* Title in the Center */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)', // Center text horizontally
+        }}
+      >
+        <h1
+          style={{
+            color: '#2596BE',
+            fontSize: '28px',
+            margin: 0,
+            fontWeight: 'bold',
+          }}
+        >
+          Datathon FME Connect
+        </h1>
+      </div>
+
+      {/* Navigation Buttons aligned to the right */}
+      <div>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <button
             style={{
               backgroundColor: '#2596BE',
               color: 'white',
               border: 'none',
-              padding: '12px 20px', // Adjusted padding for larger buttons
+              padding: '12px 20px',
               borderRadius: '5px',
               cursor: 'pointer',
-              fontSize: '18px', // Slightly larger font size
+              fontSize: '18px',
               fontWeight: 'bold',
             }}
           >
