@@ -13,7 +13,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 
-
+from backend.algoritmo_dos.main_test import create_teams
 from databaseManager.models import Participant
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -144,7 +144,7 @@ def generate_teams_kmin(request):
 
 @api_view(['POST'])
 def generate_teams_machine(request):
-    from backend.algoritmo_dos import create_teams 
+    from backend.algoritmo_dos import funciones
     
     try:
         with transaction.atomic():
