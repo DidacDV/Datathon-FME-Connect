@@ -1,84 +1,87 @@
 
-## DATATHON 2024 TEMA BUILDING PROJECT
+# Datathon FME Connect 2024
 
-## Our Team
-Hi! We are:
-- Rozhina Ahmadi 
-- Omar Cornejo Vargas
-- Didac Dalmases Valcarel
-- Rubén Palà Vacas
+**Collaborators:**  
+- Rozhina Ahmadi  
+- Omar Cornejo Vargas  
+- Didac Dalmases Valcarcel  
+- Rubén Palà Vacas  
 
-## Overview 
+## Overview  
+This project was developed for the **2024 Datathon**. It uses **React** for the front-end and **Python + Django** for the back-end, with a **PostgreSQL** database to manage participants' data. The application generates optimized, diverse teams from a provided dataset, ensuring the best compatibility and balance between participants.
 
-## Main objectives
+## Features  
+- **Team Formation Algorithm**: Generates teams based on user-defined parameters for diversity and compatibility.  
+- **Scalable Database Management**: Pre-filters participants to streamline operations and enhance performance.  
+- **Interactive Front-End**: User-friendly interface built with React.  
 
-# Getting Started with Create React App
+## Technologies  
+- **Front-End**: React  
+- **Back-End**: Python, Django  
+- **Database**: PostgreSQL  
+- **Version Control**: Git  
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Getting Started  
+### Prerequisites  
+Ensure the following tools are installed:  
+- **Node.js** (latest stable version) and npm  
+- **Python** (3.x) with pip  
+- **PostgreSQL** (running locally or accessible remotely)  
 
-## Available Scripts
+### Installation  
 
-In the project directory, you can run:
+#### Set Up the Front-End  
+1. Navigate to the `src` folder:  
+   ```bash
+   cd src
+   ```  
+2. Install the required dependencies:  
+   ```bash
+   npm install
+   ```  
+3. Start the development server:  
+   ```bash
+   npm start
+   ```  
 
-### `npm start`
+#### Set Up the Back-End  
+1. Navigate to the `backend` folder:  
+   ```bash
+   cd backend
+   ```  
+2. Install Python dependencies:  
+   ```bash
+   pip install -r requirements.txt
+   ```  
+3. Apply migrations to set up the database schema:  
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```  
+4. Run the development server:  
+   ```bash
+   python manage.py runserver
+   ```  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+#### Configure the Database  
+1. Ensure PostgreSQL is running locally or remotely.  
+2. Create a database for the application and update the `settings.py` file in the `backend` directory with the database credentials:  
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql',
+           'NAME': 'your_database_name',
+           'USER': 'your_username',
+           'PASSWORD': 'your_password',
+           'HOST': 'localhost',
+           'PORT': '5432',
+       }
+   }
+   ```  
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Usage  
+1. Open your browser and navigate to `http://localhost:3000` to access the front-end.  
+2. Use the back-end APIs available at `http://localhost:8000`.  
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## License  
+This project is open-source and available under the [MIT License](LICENSE).  
